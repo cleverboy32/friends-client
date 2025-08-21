@@ -1,0 +1,130 @@
+.switch-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.switch-label {
+    color: #374151;
+    font-weight: 400;
+    line-height: 1.5;
+    flex: 1;
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    border: none;
+    border-radius: 9999px;
+    background-color: var(--color-gray-200);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    outline: none;
+    padding: 0;
+    flex-shrink: 0;
+
+    &--small {
+        width: 2rem;
+        height: 1rem;
+
+        .switch-thumb {
+            width: 0.75rem;
+            height: 0.75rem;
+            transform: translate(0.125rem, -50%);
+        }
+
+        &.switch--checked .switch-thumb {
+            transform: translate(1.125rem, -50%);
+        }
+    }
+
+    &--medium {
+        width: 3rem;
+        height: 1.5rem;
+
+        .switch-thumb {
+            width: 1.25rem;
+            height: 1.25rem;
+            transform: translate(0.125rem, -50%);
+        }
+
+        &.switch--checked .switch-thumb {
+            transform: translate(1.625rem, -50%);
+        }
+    }
+
+    &--large {
+        width: 3.5rem;
+        height: 2rem;
+
+        .switch-thumb {
+            width: 1.75rem;
+            height: 1.75rem;
+            transform: translate(0.125rem, -50%);
+        }
+
+        &.switch--checked .switch-thumb {
+            transform: translate(1.625rem, -50%);
+        }
+    }
+
+    &--checked {
+        background-color: var(--color-primary, #ffd166);
+
+        &:hover:not(.switch--disabled) {
+            background-color: var(--color-dark-primary, #ffe8a3);
+        }
+    }
+
+    &--disabled {
+        background-color: #f3f4f6;
+        cursor: not-allowed;
+        opacity: 0.5;
+
+        &:hover {
+            background-color: #f3f4f6;
+        }
+
+        .switch-thumb {
+            background-color: #9ca3af;
+        }
+    }
+}
+
+.switch-thumb {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: #ffffff;
+    border-radius: 50%;
+    box-shadow:
+        0 1px 3px 0 rgba(0, 0, 0, 0.1),
+        0 1px 2px 0 rgba(0, 0, 0, 0.06);
+    transition: transform 0.2s ease;
+    pointer-events: none;
+}
+
+// 响应式设计
+@media (max-width: 640px) {
+    .switch-container {
+        gap: 0.5rem;
+    }
+
+    .switch {
+        &--medium {
+            width: 2.5rem;
+            height: 1.25rem;
+
+            .switch-thumb {
+                width: 1rem;
+                height: 1rem;
+                transform: translate(0.125rem, -50%);
+            }
+
+            &.switch--checked .switch-thumb {
+                transform: translate(1.375rem, -50%);
+            }
+        }
+    }
+}

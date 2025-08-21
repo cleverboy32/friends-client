@@ -1,0 +1,14 @@
+.tab-component {
+    .tab-list {
+        display: flex;
+        gap: 0.25rem;
+    }
+
+    .tab-panels {
+        margin-top: 1rem;
+    }
+
+    .tab-panel {
+        outline: none;
+    }
+}

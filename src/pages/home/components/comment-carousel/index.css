@@ -1,0 +1,95 @@
+.testimonials-carousel {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    margin: 32px auto;
+}
+
+.swiper-slide {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.swiper-testimonials {
+    width: 80vw;
+    padding: 0 100px;
+}
+
+.testimonial-content {
+    text-align: center;
+    margin: 48px auto;
+    flex: 1;
+    justify-content: center;
+}
+
+.avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 18px;
+}
+
+.testimonial-text {
+    max-width: 80%;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #1a232b;
+    margin-bottom: 24px;
+    line-height: 1.4;
+    margin: 0 auto;
+}
+
+.testimonial-name {
+    font-size: 1.2rem;
+    color: #222;
+    margin-bottom: 18px;
+}
+
+.swiper-pagination-bullets {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 18px;
+}
+
+.swiper-pagination-bullet {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #b5caa0;
+    opacity: 1;
+    transition: background 0.2s;
+}
+.swiper-pagination-bullet-active {
+    background: #1a232b;
+}
+
+.swiper-button-next,
+.swiper-button-prev {
+    color: #1a232b;
+    top: 50%;
+    width: 34px;
+    height: 34px;
+    transition:
+        background 0.2s,
+        color 0.2s;
+}
+.swiper-button-next:hover,
+.swiper-button-prev:hover {
+    color: #ffd166;
+}
+
+@media (max-width: 700px) {
+    .testimonial-text {
+        font-size: 1.1rem;
+    }
+    .testimonial-content {
+        margin: 0 8px;
+    }
+    .testimonials-carousel {
+        padding: 24px 2vw 24px 2vw;
+    }
+}

@@ -1,0 +1,220 @@
+/* 首页专用样式 */
+.homepage {
+    width: 100%;
+    min-height: 100vh;
+}
+
+.navbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 24px 8vw 16px 8vw;
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(181, 202, 160, 0.08);
+}
+
+.banner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    background: url('/src/assets/banner.jpg') no-repeat 50% 20%;
+    background-size: cover;
+    padding: 48px 8vw 48px 8vw;
+    min-height: 600px;
+    position: relative;
+}
+
+.banner::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(227, 252, 232, 0.61);
+    pointer-events: none;
+}
+
+.banner-content {
+    z-index: 10;
+    text-align: center;
+}
+.banner-content h1 {
+    font-size: 4rem;
+    margin: 0 0 16px 0;
+    font-weight: 700;
+    color: #222;
+}
+.banner-content p {
+    font-size: 1.5rem;
+    margin-bottom: 24px;
+    color: #333;
+}
+
+.banner-img-placeholder {
+    flex: 1 1 320px;
+    min-width: 280px;
+    min-height: 180px;
+    background: #e6eedd;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #b5caa0;
+    font-size: 1.5rem;
+    border-radius: 16px;
+    margin-left: 32px;
+}
+
+.features {
+    padding: 56px 8vw;
+}
+
+.features h2 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 32px;
+    color: #222;
+}
+.feature-cards {
+    display: flex;
+    gap: 0;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+}
+
+.feature-card {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 24px;
+}
+.feature-img-placeholder {
+    margin-bottom: 18px;
+}
+
+.feature-img-placeholder img {
+    object-fit: cover;
+    border-radius: 12px;
+}
+
+.feature-card h3 {
+    margin: 0 0 8px 0;
+    font-size: 2rem;
+    color: #222;
+}
+.feature-card p {
+    margin: 0;
+    color: #444;
+    font-size: 1rem;
+}
+
+.community {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    padding: 56px 8vw 56px 8vw;
+}
+.community-content {
+    margin-right: 100px;
+    flex: 1;
+}
+
+.community-content p {
+    font-size: 1.1rem;
+    color: #333;
+    margin-bottom: 18px;
+}
+.contact-btn {
+    background: #ffd166;
+    color: #222;
+    border: none;
+    border-radius: 6px;
+    padding: 10px 28px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.contact-btn:hover {
+    background: #ffb700;
+}
+.community-img-placeholder img {
+    width: 700px;
+    height: 460px;
+    object-fit: cover;
+    border-radius: 12px;
+}
+
+.instagram {
+    padding: 48px 8vw 64px 8vw;
+}
+.instagram h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 18px;
+    color: #222;
+}
+.insta-tip {
+    color: #888;
+    font-size: 1rem;
+    margin-bottom: 24px;
+}
+.insta-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 24px;
+}
+.insta-placeholder {
+    background: #f2f2f2;
+    border-radius: 12px;
+    min-height: 120px;
+}
+
+@media (max-width: 900px) {
+    .banner,
+    .community {
+        flex-direction: column;
+        padding: 36px 4vw 36px 4vw;
+    }
+    .banner-img-placeholder,
+    .community-img-placeholder {
+        margin-left: 0;
+        margin-top: 24px;
+    }
+    .feature-cards {
+        flex-direction: column;
+        gap: 18px;
+    }
+}
+@media (max-width: 600px) {
+    .navbar {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 16px 4vw 8px 4vw;
+    }
+    .nav-links {
+        gap: 18px;
+        font-size: 0.95rem;
+    }
+    .banner-content h1 {
+        font-size: 2rem;
+    }
+    .features,
+    .community,
+    .instagram {
+        padding: 28px 2vw 28px 2vw;
+    }
+    .feature-card {
+        padding: 16px 10px 14px 10px;
+    }
+}
+
+.footer a {
+    color: #1a232b;
+    text-decoration: underline;
+}
+
+.footer-left {
+    font-weight: bold;
+}
