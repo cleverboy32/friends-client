@@ -13,7 +13,6 @@ import Textarea from '../../components/Textarea';
 import Tab from '@/components/Tab';
 import Select from '@/components/Select';
 import Switch from '@/components/Switch';
-import Radio from '@/components/Radio';
 import Button from '@/components/button';
 import DatePicker from '@/components/DatePicker';
 

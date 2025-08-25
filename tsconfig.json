@@ -26,5 +26,5 @@
             "@/enum/*": ["src/enum/*"]
         }
     },
-    "include": ["src"]
+    "include": ["src", "node_modules"]
 }

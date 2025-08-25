@@ -3,9 +3,12 @@ import './home.css';
 import CommentsCarousel from './components/comment-carousel';
 import { useNavigate } from 'react-router-dom';
 import Button from '../../components/button';
+import useUserStore from '@/store/user';
 
 const Home: React.FC = () => {
     const navigate = useNavigate();
+    const userInfo = useUserStore((state) => state.userInfo);
+
     return (
         <div className="homepage">
             <header></header>
@@ -19,7 +22,13 @@ const Home: React.FC = () => {
                     <div className="flex gap-4">
                         <Button
                             className="join-btn"
-                            onClick={() => navigate('/login')}
+                            onClick={() => {
+                                if (userInfo) {
+                                    navigate('/discover');
+                                } else {
+                                    navigate('/login');
+                                }
+                            }}
                         >
                             即刻加入！
                         </Button>
