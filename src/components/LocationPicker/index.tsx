@@ -4,6 +4,7 @@ import type { AMap as AMapType } from '@amap/amap-jsapi-types';
 import Input from '../Input';
 import Modal from '../Modal';
 import Map, { type MapRef } from '../Map';
+import Button from '../button';
 
 interface LocationPickerProps {
     visible: boolean;
@@ -14,20 +15,29 @@ interface LocationPickerProps {
 
 const LocationPicker: React.FC<LocationPickerProps> = ({ value, onChange, onClose, visible }) => {
     const mapRef = useRef<MapRef>(null);
+    const poiRef = useRef<AMapType.AutoCompleteResult['poi'] | null>(null);
 
-    const handleSelectLocation = (location: AMapType.AutoCompleteResult['poi']) => {
-        onChange?.({
-            id: location.id,
-            latitude: location.location.lat,
-            longitude: location.location.lng,
-            address: location.address,
-            city: location.city,
-        });
+    const handleSelectLocation = (poi: AMapType.AutoCompleteResult['poi']) => {
+        poiRef.current = poi;
+    };
+
+    const handleConfirm = () => {
+        if (poiRef.current) {
+            const poi = poiRef.current;
+            onChange?.({
+                id: poi.id,
+                latitude: poi.location.lat,
+                longitude: poi.location.lng,
+                address: poi.address,
+                city: poi.city,
+                name: poi.name,
+            });
+        }
     };
 
     return (
         <Modal
-            className="h-[500px]"
+            className="h-[600px] w-[60vw]"
             visible={visible}
             onClose={onClose}>
             <div className="flex flex-col h-full relative">
@@ -40,6 +50,7 @@ const LocationPicker: React.FC<LocationPickerProps> = ({ value, onChange, onClos
                     autoCompleteOptions={{
                         input: 'search-location',
                     }}
+                    height="100%"
                     controlBar={false}
                     toolBar={false}
                     onSelectLocation={handleSelectLocation}
@@ -50,6 +61,15 @@ const LocationPicker: React.FC<LocationPickerProps> = ({ value, onChange, onClos
                         type="text"
                         placeholder="输入地址"
                     />
+                </div>
+
+                <div className="absolute bottom-0 left-0 right-0 p-4 bg-white">
+                    <Button
+                        onClick={handleConfirm}
+                        theme="theme"
+                        className="w-full">
+                        确定
+                    </Button>
                 </div>
             </div>
         </Modal>

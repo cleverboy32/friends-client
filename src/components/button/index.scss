@@ -31,13 +31,13 @@
     background: var(--color-dark-primary);
 }
 
-.common-btn--secondary {
-    background: var(--color-secondary);
-    color: #222;
+.common-btn--theme {
+    background: var(--color-theme);
+    color: #fff;
 }
 
-.common-btn--secondary:hover {
-    background: var(--color-dark-primary);
+.common-btn--theme:hover {
+    background: var(--color-dark-theme);
 }
 
 .common-btn--warning {

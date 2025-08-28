@@ -23,7 +23,7 @@ const Modal = ({ visible, onClose, children, className }: ModalProps) => {
                 <div className="flex h-full items-center justify-center w-full relative">
                     <DialogPanel
                         transition
-                        className={`w-[70vw] p-[16px] bg-white rounded-lg ${className}`}>
+                        className={`w-[50vw] bg-white rounded-lg overflow-hidden ${className}`}>
                         {children}
                     </DialogPanel>
                 </div>

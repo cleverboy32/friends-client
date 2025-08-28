@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useImperativeHandle } from 'react';
 import AMapLoader from '@amap/amap-jsapi-loader';
-import type { AMap as AMapType } from '@amap/amap-jsapi-types';
-import '@amap/amap-jsapi-types';
+import type { AutoComplete, PlaceSearch } from '@/types/map';
 
 interface Marker {
     id: string;
@@ -26,12 +25,12 @@ interface MapProps {
     zoom?: number;
     markers?: Marker[];
     mapStyle?: MapStyle;
-    mapConfig?: AMapType.MapOptions;
+    mapConfig?: AMap.MapOptions;
     onMarkerClick?: (marker: Marker) => void;
-    autoCompleteOptions?: AMapType.AutoCompleteOptions;
+    autoCompleteOptions?: AutoComplete.Options;
     controlBar?: boolean;
     toolBar?: boolean;
-    onSelectLocation?: (location: AMapType.AutoCompleteResult['poi']) => void;
+    onSelectLocation?: (location: AutoComplete.Poi) => void;
 }
 
 export interface MapRef {
@@ -119,6 +118,9 @@ const Map = React.forwardRef<MapRef, MapProps>(
 
         const addControlBar = () => {
             if (!controlBar) return;
+            const AMap = (window as any).AMap;
+            if (!AMap) return;
+
             const controlBarInstance = new AMap.ControlBar({
                 position: {
                     right: '10px',
@@ -130,6 +132,9 @@ const Map = React.forwardRef<MapRef, MapProps>(
 
         const addToolBar = () => {
             if (!toolBar) return;
+            const AMap = (window as any).AMap;
+            if (!AMap) return;
+
             const toolBarInstance = new AMap.ToolBar({
                 position: {
                     right: '40px',
@@ -140,66 +145,117 @@ const Map = React.forwardRef<MapRef, MapProps>(
         };
 
         const handleAddMark = (marker: Marker) => {
+            const AMap = (window as any).AMap;
+            if (!AMap) return;
+
             const iconSize = marker.iconSize || [25, 34];
             let markerConfig: any = {
                 position: marker.position,
                 title: marker.title,
             };
-            markerConfig.icon = new AMap.Icon({
-                size: new AMap.Size(iconSize[0], iconSize[1]),
-                image: marker.icon || 'https://webapi.amap.com/theme/v1.3/markers/n/mark_b.png',
-                imageSize: new AMap.Size(iconSize[0], iconSize[1]),
-            });
 
-            const markerInstance = new AMap.Marker(markerConfig);
+            try {
+                markerConfig.icon = new AMap.Icon({
+                    size: new AMap.Size(iconSize[0], iconSize[1]),
+                    image: marker.icon || 'https://webapi.amap.com/theme/v1.3/markers/n/mark_b.png',
+                    imageSize: new AMap.Size(iconSize[0], iconSize[1]),
+                });
 
-            // 创建信息窗口
-            const infoWindow = new AMap.InfoWindow({
-                content: `
-                <div style="padding: 10px; max-width: 200px;">
-                <h4 style="margin: 0 0 5px 0; font-size: 14px; color: #333;">${marker.title}</h4>
-                ${marker.content ? `<p style="margin: 0; font-size: 12px; color: #666;">${marker.content}</p>` : ''}
-                </div>
-            `,
-                offset: new AMap.Pixel(0, -30),
-            });
+                const markerInstance = new AMap.Marker(markerConfig);
 
-            // 点击标记点显示信息窗口
-            markerInstance.on('click', () => {
-                infoWindow.open(mapInstance.current, marker.position);
-                if (onMarkerClick) {
-                    onMarkerClick(marker);
-                }
-            });
+                // 创建信息窗口
+                const infoWindow = new AMap.InfoWindow({
+                    content: `
+                    <div style="padding: 10px; max-width: 200px;">
+                    <h4 style="margin: 0 0 5px 0; font-size: 14px; color: #333;">${marker.title}</h4>
+                    ${marker.content ? `<p style="margin: 0; font-size: 12px; color: #666;">${marker.content}</p>` : ''}
+                    </div>
+                `,
+                    offset: new AMap.Pixel(0, -30),
+                });
 
-            markerInstance.setMap(mapInstance.current);
-            markersRef.current.push(markerInstance);
+                // 点击标记点显示信息窗口
+                markerInstance.on('click', () => {
+                    infoWindow.open(mapInstance.current, marker.position);
+                    if (onMarkerClick) {
+                        onMarkerClick(marker);
+                    }
+                });
+
+                markerInstance.setMap(mapInstance.current);
+                markersRef.current.push(markerInstance);
+            } catch (error) {
+                console.error('添加标记点失败:', error);
+            }
         };
 
         const addAutoComplete = () => {
             if (!autoCompleteOptions) return;
+            const AMap = (window as any).AMap;
+            if (!AMap) return;
+
             try {
                 const autoComplete = new AMap.AutoComplete({
                     input: autoCompleteOptions.input,
                     city: autoCompleteOptions.city || '全国',
                     citylimit: autoCompleteOptions.citylimit || false,
-                    type: '商务写字楼|商务住宅|楼宇|门牌号|道路|地名|地址', // 指定搜索类型
                 });
 
                 // 监听选择事件
-                autoComplete.on('select', (result: AMapType.AutoCompleteResult) => {
+                autoComplete.on('select', (result: AutoComplete.Result) => {
+                    console.log('select result', result);
                     if (result.poi && result.poi.location) {
-                        mapInstance.current.setCenter([
-                            result.poi.location.lng,
-                            result.poi.location.lat,
-                        ]);
-                        mapInstance.current.setZoom(15);
-                        handleAddMark({
-                            position: [result.poi.location.lng, result.poi.location.lat],
-                            title: result.poi.name,
-                            id: result.poi.id,
-                        });
+                        const center = [result.poi.location.lng, result.poi.location.lat];
+
+                        // 使用 setTimeout 确保地图操作在下一个事件循环中执行
+                        setTimeout(() => {
+                            try {
+                                // 先清除之前的标记点
+                                markersRef.current.forEach((marker) => {
+                                    marker.setMap(null);
+                                });
+                                markersRef.current = [];
+
+                                // 添加新标记点
+                                handleAddMark({
+                                    position: [result.poi.location.lng, result.poi.location.lat],
+                                    title: result.poi.name,
+                                    id: result.poi.id,
+                                });
+
+                                // 设置地图中心点
+                                mapInstance.current.setCenter(center);
+
+                                // 设置缩放级别
+                                mapInstance.current.setZoom(15);
+                            } catch (error) {
+                                console.error('地图操作执行失败:', error);
+                            }
+                        }, 100);
                         onSelectLocation?.(result.poi);
+                    } else {
+                        const placeSearch = new AMap.PlaceSearch({
+                            map: mapInstance.current,
+                        });
+                        placeSearch.setCity(result.poi.adcode);
+                        placeSearch.search(result.poi.name);
+                        placeSearch.on('complete', (e: any) => {
+                            console.log('placeSearch complete', e);
+                            if (e.info !== 'OK') {
+                                return;
+                            }
+                            const poi = e.poiList.pois[0];
+                            console.log('placeSearch poi', poi);
+                            setTimeout(() => {
+                                mapInstance.current.setCenter([poi.location.lng, poi.location.lat]);
+                                handleAddMark({
+                                    position: [poi.location.lng, poi.location.lat],
+                                    title: poi.name,
+                                    id: poi.id,
+                                });
+                            }, 100);
+                            onSelectLocation?.(poi);
+                        });
                     }
                 });
 
@@ -229,7 +285,7 @@ const Map = React.forwardRef<MapRef, MapProps>(
             })
                 .then((AMap) => {
                     if (mapRef.current) {
-                        const config: AMapType.MapOptions = {
+                        const config: any = {
                             center,
                             ...defaultMapConfig,
                             ...mapConfig,

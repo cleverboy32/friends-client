@@ -1,13 +1,17 @@
-// 扩展 window 对象的类型定义
+import '@amap/amap-jsapi-types';
 
-interface Window {
-    amapInstance?: any;
-    _AMapSecurityConfig?: {
-        securityJsCode: string;
-    };
+declare global {
+    interface Window {
+        AMap: typeof AMap;
+        _AMapSecurityConfig: {
+            securityJsCode: string;
+        };
+    }
 }
 
 declare module '*.scss' {
     const content: { [className: string]: string };
     export default content;
 }
+
+export {};

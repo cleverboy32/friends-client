@@ -142,7 +142,6 @@ const PostActivity: React.FC = () => {
 
     const handleLocationChange = (location: Location) => {
         updateForm({ location });
-        setShowLocationPicker(false);
     };
 
     // 添加标签选择功能

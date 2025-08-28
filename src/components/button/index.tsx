@@ -1,10 +1,9 @@
 import React from 'react';
 import './index.scss';
 
-export type ButtonTheme = 'primary' | 'secondary' | 'warning';
+export type ButtonTheme = 'primary' | 'theme' | 'warning';
 
-interface CommonButtonProps
-    extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+interface CommonButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
     theme?: ButtonTheme;
 }
 
@@ -17,8 +16,7 @@ const Button: React.FC<CommonButtonProps> = ({
     return (
         <button
             className={`common-btn common-btn--${theme} ${className}`.trim()}
-            {...rest}
-        >
+            {...rest}>
             {children}
         </button>
     );
