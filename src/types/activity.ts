@@ -43,8 +43,12 @@ export interface ActivityQueryParams {
     pageSize?: number;
     type?: 'ONLINE' | 'OFFLINE';
     authorId?: number;
-    locationId?: number;
+    lng?: number;
+    lat?: number;
     tagId?: number;
+    distance?: string;
+    timeRange?: string;
+    needPartner?: boolean;
 }
 
 export interface Tag {
@@ -54,7 +58,7 @@ export interface Tag {
 }
 
 export interface Location {
-    id: number;
+    id?: number;
     latitude: number;
     longitude: number;
     address?: string;

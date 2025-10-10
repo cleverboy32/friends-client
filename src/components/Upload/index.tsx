@@ -1,5 +1,6 @@
 import React, { useState, useRef, useCallback } from 'react';
 import { PlusIcon, XMarkIcon, PhotoIcon } from '@heroicons/react/24/outline';
+import { upload } from '@/api/upload';
 import './Upload.css';
 
 export interface UploadFile {
@@ -23,6 +24,8 @@ export interface UploadProps {
     buttonText?: string;
     disabled?: boolean;
     className?: string;
+    children?: React.ReactNode;
+    showTip?: boolean;
 }
 
 const Upload: React.FC<UploadProps> = ({
@@ -37,6 +40,8 @@ const Upload: React.FC<UploadProps> = ({
     buttonText = '添加图片',
     disabled = false,
     className = '',
+    children,
+    showTip = true,
 }) => {
     const [files, setFiles] = useState<UploadFile[]>([]);
     const [isDragOver, setIsDragOver] = useState(false);
@@ -92,14 +97,73 @@ const Upload: React.FC<UploadProps> = ({
                 newFiles.push(uploadFile);
             }
 
-            if (files.length + newFiles.length > maxCount) {
-                alert(`最多只能上传 ${maxCount} 个文件`);
+            if (maxCount === 1) {
+                // 单文件模式：使用最后一个通过校验的新文件替换现有文件
+                if (newFiles.length === 0) return;
+                const picked = newFiles[newFiles.length - 1];
+
+                setFiles([picked]);
+                onChange?.([picked]);
+
+                try {
+                    const data = await upload(picked.file);
+                    const serverUrl = data.imageUrl || data?.imageUrl || '';
+                    if (serverUrl) {
+                        setFiles([{ ...picked, url: serverUrl }]);
+                        onChange?.([{ ...picked, url: serverUrl }]);
+                        URL.revokeObjectURL(picked.url);
+                    }
+                } catch (err) {
+                    // 上传失败，移除该文件并提示
+                    setFiles([]);
+                    onChange?.([]);
+                    URL.revokeObjectURL(picked.url);
+                    alert(`上传失败：${picked.name}`);
+                }
                 return;
             }
 
-            const updatedFiles = [...files, ...newFiles];
-            setFiles(updatedFiles);
-            onChange?.(updatedFiles);
+            if (files.length + newFiles.length > maxCount) {
+                alert(`最多只能上传 ${maxCount} 个文件`);
+                // 释放已创建但未加入状态的对象URL
+                newFiles.forEach((f) => URL.revokeObjectURL(f.url));
+                return;
+            }
+
+            // 先乐观更新，展示本地预览（多文件模式）
+            const optimisticFiles = [...files, ...newFiles];
+            setFiles(optimisticFiles);
+            onChange?.(optimisticFiles);
+
+            // 并发上传，每个成功后用服务端URL替换
+            await Promise.all(
+                newFiles.map(async (nf) => {
+                    try {
+                        const data = await upload(nf.file);
+                        const serverUrl = data.imageUrl || data?.imageUrl || '';
+                        if (serverUrl) {
+                            // 替换对应文件的url
+                            setFiles((prev) => {
+                                const next = prev.map((f) =>
+                                    f.id === nf.id ? { ...f, url: serverUrl } : f,
+                                );
+                                onChange?.(next);
+                                return next;
+                            });
+                            URL.revokeObjectURL(nf.url);
+                        }
+                    } catch (err) {
+                        // 上传失败，移除该文件并提示
+                        setFiles((prev) => {
+                            const next = prev.filter((f) => f.id !== nf.id);
+                            onChange?.(next);
+                            return next;
+                        });
+                        URL.revokeObjectURL(nf.url);
+                        alert(`上传失败：${nf.name}`);
+                    }
+                }),
+            );
         },
         [files, maxCount, validateFile, beforeUpload, onChange],
     );
@@ -160,6 +224,57 @@ const Upload: React.FC<UploadProps> = ({
         }
     }, [disabled]);
 
+    const renderButton = useCallback(() => {
+        return (
+            <div className="flex flex-col items-center justify-center py-8">
+                <PhotoIcon className="w-12 h-12 text-gray-400 mb-2" />
+                <p className="text-gray-600 mb-1">
+                    {drag ? '拖拽图片到此处或点击上传' : '点击上传图片'}
+                </p>
+                <p className="text-sm text-gray-500">
+                    支持 {accept} 格式，最大 {maxSize}MB
+                </p>
+            </div>
+        );
+    }, [accept, maxSize, drag]);
+
+    const renderList = useCallback(() => {
+        return (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+                {files.map((file) => (
+                    <div
+                        key={file.id}
+                        className="relative group">
+                        <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
+                            <img
+                                src={file.url}
+                                alt={file.name}
+                                className="w-full h-full object-cover"
+                            />
+                        </div>
+
+                        <button
+                            type="button"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                handleRemove(file);
+                            }}
+                            className="absolute -top-2 -right-2 w-6 h-6 bg-primary text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-dark-primary">
+                            <XMarkIcon className="w-3 h-3" />
+                        </button>
+                    </div>
+                ))}
+
+                {files.length < maxCount && (
+                    <div className="aspect-square border-2 border-dashed border-gray-200 rounded-lg flex flex-col items-center justify-center hover:border-primary transition-colors">
+                        <PlusIcon className="w-6 h-6 text-gray-400" />
+                        <span className="text-xs text-gray-500 mt-1">{buttonText}</span>
+                    </div>
+                )}
+            </div>
+        );
+    }, [files, maxCount, buttonText, handleRemove]);
+
     return (
         <div className={`upload-component ${className}`}>
             <input
@@ -173,8 +288,14 @@ const Upload: React.FC<UploadProps> = ({
             />
 
             <div
-                className={`
-                    relative rounded-lg p-4 transition-colors upload-area
+                onClick={handleClick}
+                className={`${disabled ? 'relative opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}>
+                {children ? (
+                    <div>{children}</div>
+                ) : (
+                    <div
+                        className={`
+                    rounded-lg p-4 transition-colors upload-area
                     ${files.length > 0 ? 'has-files' : ''}
                     ${
                         files.length === 0
@@ -185,61 +306,16 @@ const Upload: React.FC<UploadProps> = ({
                               }`
                             : 'border-0'
                     }
-                    ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
                 `}
-                onDragOver={handleDragOver}
-                onDragLeave={handleDragLeave}
-                onDrop={handleDrop}
-                onClick={handleClick}
-            >
-                {files.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center py-8">
-                        <PhotoIcon className="w-12 h-12 text-gray-400 mb-2" />
-                        <p className="text-gray-600 mb-1">
-                            {drag ? '拖拽图片到此处或点击上传' : '点击上传图片'}
-                        </p>
-                        <p className="text-sm text-gray-500">
-                            支持 {accept} 格式，最大 {maxSize}MB
-                        </p>
-                    </div>
-                ) : (
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
-                        {files.map((file) => (
-                            <div key={file.id} className="relative group">
-                                <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
-                                    <img
-                                        src={file.url}
-                                        alt={file.name}
-                                        className="w-full h-full object-cover"
-                                    />
-                                </div>
-
-                                <button
-                                    type="button"
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleRemove(file);
-                                    }}
-                                    className="absolute -top-2 -right-2 w-6 h-6 bg-primary text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-dark-primary"
-                                >
-                                    <XMarkIcon className="w-3 h-3" />
-                                </button>
-                            </div>
-                        ))}
-
-                        {files.length < maxCount && (
-                            <div className="aspect-square border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center hover:border-primary transition-colors">
-                                <PlusIcon className="w-6 h-6 text-gray-400" />
-                                <span className="text-xs text-gray-500 mt-1">
-                                    {buttonText}
-                                </span>
-                            </div>
-                        )}
+                        onDragOver={handleDragOver}
+                        onDragLeave={handleDragLeave}
+                        onDrop={handleDrop}>
+                        {files.length === 0 ? renderButton() : renderList()}
                     </div>
                 )}
             </div>
 
-            {files.length > 0 && (
+            {files.length > 0 && showTip && (
                 <div className="pl-4 text-[11px] text-gray-400">
                     已上传 {files.length}/{maxCount} 个文件
                 </div>

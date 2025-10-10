@@ -3,7 +3,7 @@
     padding: 0 1em;
     font-size: 14px;
     border: 1px solid var(--color-gray-200);
-    border-radius: 8px;
+    border-radius: 4px;
     outline: none;
     transition:
         border 0.2s,
@@ -16,12 +16,12 @@
 
 .common-input--large {
     font-size: 16px;
-    height: 56px;
+    height: 44px;
     padding: 0 1.25em;
 }
 .common-input--medium {
     font-size: 14px;
-    height: 48px;
+    height: 40px;
     padding: 0 1em;
 }
 .common-input--small {

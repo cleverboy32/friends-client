@@ -1,11 +1,5 @@
-import React from 'react';
-import {
-    Tab as HeadlessTab,
-    TabGroup,
-    TabList,
-    TabPanel,
-    TabPanels,
-} from '@headlessui/react';
+import React, { useCallback, useState } from 'react';
+import { Tab as HeadlessTab, TabGroup, TabList, TabPanel, TabPanels } from '@headlessui/react';
 import './index.scss';
 
 export interface TabItem {
@@ -19,7 +13,6 @@ export interface TabProps {
     defaultIndex?: number;
     className?: string;
     variant?: 'default' | 'pills' | 'underline';
-    selected?: string;
     onChange?: (tab: TabItem) => void;
 }
 
@@ -28,16 +21,22 @@ const Tab: React.FC<TabProps> = ({
     defaultIndex = 0,
     className = '',
     variant = 'pills',
-    selected,
     onChange,
 }) => {
+    const [selected, setSelected] = useState(tabs[defaultIndex]?.id);
+
+    const handleChangeTab = useCallback((index: number) => {
+        setSelected(tabs[index].id);
+        onChange?.(tabs[index]);
+    }, []);
+
     return (
         <div className={`tab-component ${className}`}>
             <TabGroup defaultIndex={defaultIndex}>
                 <TabList className="tab-list flex space-x-1">
-                    {tabs.map((tab) => (
+                    {tabs.map((tab, index) => (
                         <HeadlessTab
-                            onClick={() => onChange?.(tab)}
+                            onClick={() => handleChangeTab(index)}
                             key={tab.id}
                             className={`px-4 py-1 text-sm font-medium focus:outline-none transition-colors ${
                                 tab.id === selected
@@ -47,8 +46,7 @@ const Tab: React.FC<TabProps> = ({
                                           ? 'text-primary border-b-2 border-primary '
                                           : 'bg-primary/10 text-primary'
                                     : 'text-gray-500 hover:text-gray-700'
-                            } ${variant === 'pills' ? 'rounded' : ''}`}
-                        >
+                            } ${variant === 'pills' ? 'rounded' : ''}`}>
                             {tab.label}
                         </HeadlessTab>
                     ))}
@@ -57,12 +55,9 @@ const Tab: React.FC<TabProps> = ({
                     {tabs.map((tab) => (
                         <TabPanel
                             key={tab.id}
-                            className="tab-panel focus:outline-none"
-                        >
+                            className="tab-panel focus:outline-none">
                             {typeof tab.content === 'string' ? (
-                                <div className="text-gray-700">
-                                    {tab.content}
-                                </div>
+                                <div className="text-gray-700">{tab.content}</div>
                             ) : (
                                 tab.content
                             )}

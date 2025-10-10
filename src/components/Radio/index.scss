@@ -77,7 +77,7 @@
 
         &:hover {
             .radio-custom {
-                border-color: #d1d5db;
+                border-color: #e1e4e8;
             }
         }
 
@@ -133,7 +133,7 @@
 }
 
 .radio-input:disabled + .radio-custom {
-    border-color: #d1d5db;
+    border-color: #e1e4e8;
     background-color: #f3f4f6;
     cursor: not-allowed;
 

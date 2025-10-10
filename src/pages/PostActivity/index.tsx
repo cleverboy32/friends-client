@@ -14,6 +14,7 @@ import Button from '@/components/button';
 import ActivityCard from '@/components/ActivityCard';
 import { createActivity } from '@/api/activity';
 import type { CreateActivityParams, Location } from '@/types/activity';
+import useUserStore from '@/store/user';
 
 interface ActivityForm {
     title: string;
@@ -29,6 +30,9 @@ const PostActivity: React.FC = () => {
     const navigate = useNavigate();
     const [selectedTab, setSelectedTab] = useState('topic');
     const [isPublishing, setIsPublishing] = useState(false);
+    const { userInfo } = useUserStore();
+
+    console.log(userInfo);
 
     // 统一的表单数据对象
     const [form, setForm] = useState<ActivityForm>({
@@ -166,7 +170,8 @@ const PostActivity: React.FC = () => {
             location: form.location
                 ? `${form.location.city} ${form.location.address || ''}`
                 : '未选择地点',
-            publisher: '我',
+            publisher: userInfo?.name || '',
+            avatar: userInfo?.avatar || '',
             reward: form.needPartner
                 ? '寻找合作伙伴'
                 : `${form.type === 'ONLINE' ? '线上' : '线下'}活动`,

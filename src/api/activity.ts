@@ -14,10 +14,10 @@ export const createActivity = (data: CreateActivityParams) => {
 // 获取活动列表
 export const getActivityList = (params: ActivityQueryParams = {}) => {
     return post<{
-        list: Activity[];
+        items: Activity[];
         total: number;
         page: number;
-        pageSize: number;
+        totalPage: number;
     }>('/activity/list', params);
 };
 
@@ -27,10 +27,7 @@ export const getActivityDetail = (activityId: number) => {
 };
 
 // 更新活动信息
-export const updateActivity = (
-    activityId: number,
-    data: UpdateActivityParams,
-) => {
+export const updateActivity = (activityId: number, data: UpdateActivityParams) => {
     return put<Activity>(`/activity/update`, data);
 };
 

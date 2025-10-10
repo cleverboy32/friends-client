@@ -1,10 +1,10 @@
 import React, { useRef } from 'react';
 import type { Location } from '@/types/activity';
-import type { AMap as AMapType } from '@amap/amap-jsapi-types';
 import Input from '../Input';
 import Modal from '../Modal';
 import Map, { type MapRef } from '../Map';
 import Button from '../button';
+import type { AutoComplete } from '@/types/map';
 
 interface LocationPickerProps {
     visible: boolean;
@@ -15,9 +15,9 @@ interface LocationPickerProps {
 
 const LocationPicker: React.FC<LocationPickerProps> = ({ value, onChange, onClose, visible }) => {
     const mapRef = useRef<MapRef>(null);
-    const poiRef = useRef<AMapType.AutoCompleteResult['poi'] | null>(null);
+    const poiRef = useRef<AutoComplete.Poi | null>(null);
 
-    const handleSelectLocation = (poi: AMapType.AutoCompleteResult['poi']) => {
+    const handleSelectLocation = (poi: AutoComplete.Poi) => {
         poiRef.current = poi;
     };
 
@@ -25,14 +25,13 @@ const LocationPicker: React.FC<LocationPickerProps> = ({ value, onChange, onClos
         if (poiRef.current) {
             const poi = poiRef.current;
             onChange?.({
-                id: poi.id,
                 latitude: poi.location.lat,
                 longitude: poi.location.lng,
-                address: poi.address,
-                city: poi.city,
-                name: poi.name,
+                address: poi.name,
+                city: poi.district,
             });
         }
+        onClose();
     };
 
     return (

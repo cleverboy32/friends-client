@@ -1,5 +1,6 @@
 import React from 'react';
-import { ClockIcon, MapPinIcon, UserIcon } from '@heroicons/react/24/outline';
+import { UserGroupIcon } from '@heroicons/react/24/outline';
+import { ClockIcon, MapPinIcon } from '@heroicons/react/24/solid';
 
 interface Activity {
     id: string;
@@ -15,6 +16,8 @@ interface Activity {
     distance: number;
     coordinates: [number, number];
     image: string;
+    avatar: string;
+    jionPeople: number;
 }
 
 interface ActivityCardProps {
@@ -23,11 +26,7 @@ interface ActivityCardProps {
     className?: string;
 }
 
-const ActivityCard: React.FC<ActivityCardProps> = ({
-    activity,
-    onClick,
-    className = '',
-}) => {
+const ActivityCard: React.FC<ActivityCardProps> = ({ activity, onClick, className = '' }) => {
     const handleClick = () => {
         if (onClick) {
             onClick(activity.id);
@@ -37,60 +36,59 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
     return (
         <div
             onClick={handleClick}
-            className={`bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow cursor-pointer overflow-hidden ${className}`}
-        >
-            {/* 活动图片 */}
-            <div
-                className="relative h-12 bg-cover bg-center"
-                style={{
-                    backgroundImage: `url(${activity.image})`,
-                }}
-            >
-                <div className="absolute top-2 right-2 bg-primary text-white text-xs px-2 py-1 rounded-full font-medium">
-                    {activity.reward}
-                </div>
-            </div>
-
-            {/* 活动信息 */}
-            <div className="p-4">
-                {/* 用户信息 - 移到顶部 */}
-                <div className="flex items-center gap-2 mb-3">
-                    <div className="w-10 h-10 rounded-full bg-gray-200 overflow-hidden">
+            className={`relative cursor-pointer w-[250px] overflow-hidden ${className}`}>
+            <div className="relative bg-white rounded-lg border border-light-bg-theme/60">
+                <div className=" flex items-center justify-center min-h-[200px] ">
+                    {activity.image ? (
                         <img
-                            src={`https://via.placeholder.com/32x32/4ade80/ffffff?text=${activity.publisher.charAt(0)}`}
-                            alt={activity.publisher}
-                            className="w-full h-full object-cover"
+                            src={activity.image}
+                            className="h-[170px] object-cover"
                         />
-                    </div>
-                    <span className="text-sm font-medium text-gray-700">
-                        {activity.publisher}
-                    </span>
+                    ) : (
+                        <div className="text-[18px] ">
+                            <span className="bg-clip-text text-transparent bg-[linear-gradient(90deg,#FF4D4F,#FAAD14,#52C41A,#13C2C2,#1677FF,#722ED1,#EB2F96)]">
+                                {activity.title}
+                            </span>
+                            <p className="text-sm text-gray-500 mt-[10px]">{activity.content}</p>
+                        </div>
+                    )}
                 </div>
 
-                <h3 className="font-semibold text-gray-800 mb-2 line-clamp-1">
-                    {activity.title}
-                </h3>
-                <p className="text-sm text-gray-600 mb-3 line-clamp-2">
-                    {activity.content}
-                </p>
-
-                {/* 活动详情 */}
-                <div className="space-y-2 text-sm text-gray-500">
+                <div className="space-y-2 text-sm text-gray-500 h-[80px] p-[12px]">
+                    <div className="bg-primary text-white text-xs px-2 py-1 rounded-full font-medium inline-block">
+                        {activity.reward}
+                    </div>
                     <div className="flex items-center gap-2">
-                        <ClockIcon className="w-4 h-4" />
+                        <ClockIcon className="w-[20px] h-[20px] text-primary" />
                         <span>{activity.time}</span>
                     </div>
                     <div className="flex items-center gap-2">
-                        <MapPinIcon className="w-4 h-4" />
+                        <MapPinIcon className="w-[20px] h-[20px] text-primary" />
                         <span>{activity.location}</span>
                     </div>
+                </div>
+            </div>
+
+            <div className="p-[12px]">
+                <h3 className="font-semibold text-gray-800 mb-2 line-clamp-1">{activity.title}</h3>
+                <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                        <UserIcon className="w-4 h-4 text-gray-500" />
-                        <div className=" text-xs px-2 py-1 rounded-full ">
-                            {activity.participants}/{activity.maxParticipants}
-                        </div>
+                        <img
+                            src={activity.avatar}
+                            alt={activity.publisher}
+                            className="w-[24px] h-[24px] rounded-full object-cover"
+                        />
+                        <span className="text-sm font-medium text-gray-700">
+                            {activity.publisher}
+                        </span>
+                    </div>
+
+                    <div className="flex items-center gap-2 text-gray-500">
+                        <UserGroupIcon className="w-[18px] h-[18px] " />
+                        <span className="text-sm font-medium ">{activity.jionPeople ?? 0}</span>
                     </div>
                 </div>
+                {/* <p className="text-sm text-gray-600 mb-3 line-clamp-2">{activity.content}</p> */}
             </div>
         </div>
     );

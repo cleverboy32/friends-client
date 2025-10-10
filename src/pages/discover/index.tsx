@@ -1,296 +1,222 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Map from '../../components/Map';
-import DZSelect from '@/components/Select';
+import Map, { MAP_STYLES } from '../../components/Map';
+import RadioGroup from '@/components/Radio';
+import Input from '@/components/Input';
 import ActivityCard, { type Activity } from '@/components/ActivityCard';
 import { useOptions } from '@/hooks/useOptions';
-import {
-    MagnifyingGlassIcon,
-    ChevronRightIcon,
-} from '@heroicons/react/24/outline';
+import { getActivityList } from '@/api/activity';
+import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
+import type { ActivityQueryParams } from '@/types/activity';
+import type { AutoComplete } from '@/types/map';
+import Navbar from '@/components/navbar';
 
 const DiscoverPage: React.FC = () => {
     const navigate = useNavigate();
-    const [searchAddress, setSearchAddress] = useState('');
-    const [selectedCategory, setSelectedCategory] = useState('全部');
-    const [selectedTime, setSelectedTime] = useState('全部');
-    const [selectedDistance, setSelectedDistance] = useState('全部');
-    const [selectedPeople, setSelectedPeople] = useState('全部');
+    const address = useRef<AutoComplete.Poi>(null);
+    const [filter, setFilter] = useState<ActivityQueryParams>({
+        type: 'OFFLINE',
+        distance: '1000',
+        timeRange: '7',
+    });
+    const page = useRef(1);
+
     const [activities, setActivities] = useState<Activity[]>([]);
-    const [filteredActivities, setFilteredActivities] = useState<Activity[]>(
+
+    const [loading, setLoading] = useState(false);
+    const loadingRef = useRef(false);
+
+    // 使用 useCallback 优化 filter 变化处理函数
+    const handleFilterChange = useCallback(
+        (key: keyof ActivityQueryParams, value: string | number) => {
+            setFilter((prev) => ({ ...prev, [key]: value }));
+        },
         [],
     );
 
-    // 模拟活动数据
+    const fetchActivities = useCallback(async () => {
+        if (loadingRef.current) return;
+        loadingRef.current = true;
+        setLoading(true);
+        try {
+            const response = await getActivityList({
+                page: page.current,
+                pageSize: 20,
+                ...filter,
+                lng: address.current?.location?.lng,
+                lat: address.current?.location?.lat,
+            });
+
+            // 转换API数据格式为ActivityCard组件期望的格式
+            const convertedActivities: Activity[] = response.items.map((item: any) => ({
+                id: item.id.toString(),
+                title: item.title,
+                content: item.content,
+                time: new Date(item.createdAt).toLocaleString('zh-CN'),
+                location: item.location?.address || '未知地点',
+                publisher: '发布者', // API中没有author信息，暂时使用默认值
+                reward: `${Math.floor(Math.random() * 200) + 50}积分`, // 暂时随机生成积分
+                participants: Math.floor(Math.random() * 50), // 暂时随机生成参与人数
+                maxParticipants: Math.floor(Math.random() * 100) + 50, // 暂时随机生成最大参与人数
+                category: item.tags?.[0] || '其他',
+                distance: Math.random() * 20, // 暂时随机生成距离
+                coordinates: item.location
+                    ? [item.location.longitude, item.location.latitude]
+                    : [116.397428, 39.90923],
+                image:
+                    item.image?.[0] ||
+                    `https://via.placeholder.com/120x80/4ade80/ffffff?text=${item.title.charAt(0)}`,
+            }));
+
+            setActivities(convertedActivities);
+            page.current = response.page + 1;
+        } catch (error) {
+            console.error('获取活动列表失败:', error);
+            setActivities([]);
+        } finally {
+            loadingRef.current = false;
+            setLoading(false);
+        }
+    }, [filter, page]);
+
+    // 获取活动数据
     useEffect(() => {
-        const mockActivities: Activity[] = [
-            {
-                id: '1',
-                title: '林绿',
-                content: '绿色环保主题活动，一起为地球贡献力量',
-                time: '2024-01-15 14:00',
-                location: '朝阳公园',
-                publisher: '环保协会',
-                reward: '78积分',
-                participants: 78,
-                maxParticipants: 100,
-                category: '环保',
-                distance: 1.2,
-                coordinates: [116.397428, 39.90923],
-                image: 'https://via.placeholder.com/120x80/4ade80/ffffff?text=林绿',
-            },
-            {
-                id: '2',
-                title: '活动语',
-                content: '语言交流活动，提升口语表达能力',
-                time: '2024-01-16 19:00',
-                location: '三里屯',
-                publisher: '语言俱乐部',
-                reward: '100积分',
-                participants: 45,
-                maxParticipants: 50,
-                category: '教育',
-                distance: 2.5,
-                coordinates: [116.407428, 39.91923],
-                image: 'https://via.placeholder.com/120x80/000000/ffffff?text=活动语',
-            },
-            {
-                id: '3',
-                title: '城市人居活动',
-                content: '探索城市生活，发现美好人居',
-                time: '2024-01-17 10:00',
-                location: '798艺术区',
-                publisher: '城市探索者',
-                reward: '120积分',
-                participants: 120,
-                maxParticipants: 150,
-                category: '文化',
-                distance: 3.8,
-                coordinates: [116.387428, 39.89923],
-                image: 'https://via.placeholder.com/120x80/4ade80/ffffff?text=人居',
-            },
-            {
-                id: '4',
-                title: '发角,入',
-                content: '创意手工制作，发挥想象力',
-                time: '2024-01-18 15:00',
-                location: '南锣鼓巷',
-                publisher: '手工达人',
-                reward: '90积分',
-                participants: 30,
-                maxParticipants: 40,
-                category: '手工',
-                distance: 1.8,
-                coordinates: [116.417428, 39.92923],
-                image: 'https://via.placeholder.com/120x80/eab308/ffffff?text=发角',
-            },
-            {
-                id: '5',
-                title: '入库人多',
-                content: '仓储管理体验，了解物流流程',
-                time: '2024-01-19 09:00',
-                location: '顺义物流园',
-                publisher: '物流公司',
-                reward: '150积分',
-                participants: 200,
-                maxParticipants: 300,
-                category: '体验',
-                distance: 15.2,
-                coordinates: [116.377428, 39.88923],
-                image: 'https://via.placeholder.com/120x80/eab308/ffffff?text=入库',
-            },
-        ];
-        setActivities(mockActivities);
-        setFilteredActivities(mockActivities);
+        fetchActivities();
     }, []);
 
-    // 筛选活动
-    useEffect(() => {
-        let filtered = activities;
+    const handleActivityClick = useCallback(
+        (activityId: string) => {
+            navigate(`/discover/activity/${activityId}`);
+        },
+        [navigate],
+    );
 
-        if (selectedCategory !== '全部') {
-            filtered = filtered.filter(
-                (activity) => activity.category === selectedCategory,
-            );
-        }
-
-        if (selectedTime !== '全部') {
-            // 这里可以根据时间筛选逻辑进行调整
-            filtered = filtered.filter((activity) => {
-                const activityDate = new Date(activity.time);
-                const now = new Date();
-                const diffDays = Math.ceil(
-                    (activityDate.getTime() - now.getTime()) /
-                        (1000 * 60 * 60 * 24),
-                );
-
-                switch (selectedTime) {
-                    case '今天':
-                        return diffDays === 0;
-                    case '明天':
-                        return diffDays === 1;
-                    case '本周':
-                        return diffDays >= 0 && diffDays <= 7;
-                    case '本月':
-                        return diffDays >= 0 && diffDays <= 30;
-                    default:
-                        return true;
-                }
-            });
-        }
-
-        if (selectedDistance !== '全部') {
-            const distanceMap: { [key: string]: number } = {
-                '1km内': 1,
-                '3km内': 3,
-                '5km内': 5,
-                '10km内': 10,
-            };
-            const maxDistance = distanceMap[selectedDistance];
-            if (maxDistance) {
-                filtered = filtered.filter(
-                    (activity) => activity.distance <= maxDistance,
-                );
-            }
-        }
-
-        if (selectedPeople !== '全部') {
-            const peopleMap: { [key: string]: number } = {
-                '10人以下': 10,
-                '10-50人': 50,
-                '50-100人': 100,
-                '100人以上': Infinity,
-            };
-            const maxPeople = peopleMap[selectedPeople];
-            if (maxPeople) {
-                if (selectedPeople === '100人以上') {
-                    filtered = filtered.filter(
-                        (activity) => activity.maxParticipants > 100,
-                    );
-                } else {
-                    filtered = filtered.filter(
-                        (activity) => activity.maxParticipants <= maxPeople,
-                    );
-                }
-            }
-        }
-
-        setFilteredActivities(filtered);
-    }, [
-        activities,
-        selectedCategory,
-        selectedTime,
-        selectedDistance,
-        selectedPeople,
-    ]);
-
-    const handleActivityClick = (activityId: string) => {
-        // 导航到活动详情页
-        navigate(`/discover/activity/${activityId}`);
-    };
-
-    const handleMarkerClick = (marker: any) => {
-        // 点击地图标记点时的处理
+    const handleMarkerClick = useCallback((marker: any) => {
         console.log('点击地图标记:', marker);
-    };
+    }, []);
 
-    // 将活动数据转换为地图标记点
-    const mapMarkers = activities.map((activity) => ({
-        id: activity.id,
-        position: activity.coordinates,
-        title: activity.title,
-        content: `${activity.location} - ${activity.time}`,
-    }));
+    const handleSelectLocation = useCallback((location: AutoComplete.Poi) => {
+        address.current = location;
+        console.log('location', location);
+        page.current = 1;
+        fetchActivities();
+    }, []);
 
-    const { categoryOptions, timeOptions, distanceOptions, peopleOptions } =
-        useOptions();
+    // 将活动数据转换为地图标记点，使用 useMemo 避免不必要的重新计算
+    const mapMarkers = useMemo(
+        () =>
+            activities.map((activity) => ({
+                id: activity.id,
+                position: activity.coordinates,
+                title: activity.title,
+                content: `${activity.location} - ${activity.time}`,
+            })),
+        [activities],
+    );
+
+    const mapProps = useMemo(
+        () => ({
+            width: '100%',
+            height: '300px',
+            center: [116.397428, 39.90923],
+            zoom: 12,
+            controlBar: false,
+            toolBar: false,
+            mapConfig: {
+                viewMode: '2D' as const,
+                pitchEnable: false,
+                rotateEnable: false,
+            },
+            mapStyle: {
+                mapStyle: MAP_STYLES.LIGHT,
+            },
+            autoCompleteOptions: {
+                city: '北京',
+                input: 'discover-address-input',
+            },
+        }),
+        [],
+    );
+
+    console.log('render');
+
+    // 使用 useMemo 缓存 useOptions 的返回值，避免每次渲染都创建新对象
+    const options = useMemo(() => useOptions(), []);
+
+    const { categoryOptions, timeOptions, distanceOptions } = options;
 
     return (
-        <div className="bg-gray-50 p-10">
-            <div className="flex mb-6 relative">
-                <Map
-                    width="100%"
-                    height="600px"
-                    center={[116.397428, 39.90923]}
-                    zoom={12}
-                    markers={mapMarkers}
-                    onMarkerClick={handleMarkerClick}
-                />
-                <div className="absolute top-10 left-10">
-                    <input
-                        type="text"
-                        placeholder="请输入地点"
-                        value={searchAddress}
-                        onChange={(e) => setSearchAddress(e.target.value)}
-                        className="w-[400px] px-4 py-2 pr-12 bg-white rounded-lg"
+        <div className="flex">
+            <Navbar />
+
+            <div className="bg-gray-50 flex-1">
+                <div className="flex mb-[32px] relative">
+                    <Map
+                        {...mapProps}
+                        markers={mapMarkers}
+                        onMarkerClick={handleMarkerClick}
+                        onSelectLocation={handleSelectLocation}
                     />
-                    <MagnifyingGlassIcon className="absolute right-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                </div>
-            </div>
-
-            <div className="flex flex-wrap gap-10 mb-4 bg-gray-50 mt-10">
-                <DZSelect
-                    label="类别"
-                    value={selectedCategory}
-                    options={categoryOptions}
-                    onChange={setSelectedCategory}
-                />
-                <DZSelect
-                    label="时间"
-                    value={selectedTime}
-                    options={timeOptions}
-                    onChange={setSelectedTime}
-                />
-                <DZSelect
-                    label="距离"
-                    value={selectedDistance}
-                    options={distanceOptions}
-                    onChange={setSelectedDistance}
-                />
-                <DZSelect
-                    label="人数"
-                    value={selectedPeople}
-                    options={peopleOptions}
-                    onChange={setSelectedPeople}
-                />
-            </div>
-
-            {/* 活动列表区域 */}
-            <div className="mx-auto">
-                <div className="flex justify-between items-center mb-6">
-                    <h2 className="text-xl font-bold text-gray-800">
-                        相关任务列表
-                    </h2>
-                    <button className="text-sm text-gray-600 hover:text-black flex items-center gap-1">
-                        查看更多
-                        <ChevronRightIcon className="w-4 h-4" />
-                    </button>
-                </div>
-
-                {/* 活动卡片网格 */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-10">
-                    {filteredActivities.map((activity) => (
-                        <ActivityCard
-                            key={activity.id}
-                            activity={activity}
-                            onClick={handleActivityClick}
+                    <div className="absolute top-2 left-2">
+                        <Input
+                            type="text"
+                            id="discover-address-input"
+                            placeholder="请输入地点"
+                            className="!w-[300px]   bg-white rounded-lg"
                         />
-                    ))}
+                        <MagnifyingGlassIcon className="absolute right-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    </div>
                 </div>
 
-                {filteredActivities.length === 0 && (
-                    <div className="text-center py-12">
-                        <div className="text-gray-400 text-lg">
-                            暂无符合条件的活动
-                        </div>
-                        <div className="text-gray-300 text-sm mt-2">
-                            请尝试调整筛选条件
-                        </div>
+                <div className="flex  gap-10 bg-gray-50">
+                    <RadioGroup
+                        value={filter.type}
+                        options={categoryOptions}
+                        variant="segmented"
+                        onChange={(value) =>
+                            handleFilterChange('type', value as 'ONLINE' | 'OFFLINE')
+                        }
+                    />
+                    <RadioGroup
+                        value={filter.distance}
+                        options={distanceOptions}
+                        variant="segmented"
+                        onChange={(value) => handleFilterChange('distance', value)}
+                    />
+                    <RadioGroup
+                        value={filter.timeRange}
+                        options={timeOptions}
+                        variant="segmented"
+                        onChange={(value) => handleFilterChange('timeRange', value)}
+                    />
+                </div>
+
+                {/* 活动列表区域 */}
+                <div className="mx-auto pr-[40px] mt-[40px]">
+                    <div className="flex justify-between items-center mb-[12px]">
+                        <h2 className="text-xl font-bold text-gray-800">相关活动</h2>
                     </div>
-                )}
+
+                    {/* 活动卡片网格 */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-10">
+                        {activities.map((activity) => (
+                            <ActivityCard
+                                key={activity.id}
+                                activity={activity}
+                                onClick={handleActivityClick}
+                            />
+                        ))}
+                    </div>
+
+                    {activities.length === 0 && (
+                        <div className="text-center py-12">
+                            <div className="text-gray-400 text-lg">暂无相关的活动</div>
+                        </div>
+                    )}
+                </div>
             </div>
         </div>
     );
 };
 
-export default DiscoverPage;
+export default React.memo(DiscoverPage);

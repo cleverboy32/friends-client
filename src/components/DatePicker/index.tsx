@@ -9,7 +9,6 @@ import {
     getWeekDays,
 } from '../../utils/date';
 import {
-    XMarkIcon,
     CalendarIcon,
     ChevronLeftIcon,
     ChevronRightIcon,
@@ -133,16 +132,17 @@ export const DatePicker: React.FC<DatePickerProps> = ({
 
     // 处理日期选择
     const handleDateSelect = useCallback(
-        (date: Date) => {
+        (date: Date, close?: () => void) => {
             if (disabled) return;
             if (minDate && date < minDate) return;
             if (maxDate && date > maxDate) return;
 
             if (mode === 'single') {
-                const newValue =
-                    format === 'YYYY-MM-DD' ? formatDate(date) : date;
+                const newValue = format === 'YYYY-MM-DD' ? formatDate(date) : date;
                 setSelectedValue(newValue);
                 onChange?.(newValue);
+                // 单日期模式选择后自动关闭
+                close?.();
             } else {
                 const rangeValue = selectedValue as DateRange;
                 const [start, end] = rangeValue;
@@ -150,28 +150,23 @@ export const DatePicker: React.FC<DatePickerProps> = ({
                 let newRange: DateRange;
 
                 if (!start || (start && end)) {
-                    newRange = [
-                        format === 'YYYY-MM-DD' ? formatDate(date) : date,
-                        null,
-                    ];
+                    newRange = [format === 'YYYY-MM-DD' ? formatDate(date) : date, null];
                 } else {
-                    const startDate =
-                        typeof start === 'string' ? parseDate(start)! : start;
+                    const startDate = typeof start === 'string' ? parseDate(start)! : start;
                     if (date < startDate) {
-                        newRange = [
-                            format === 'YYYY-MM-DD' ? formatDate(date) : date,
-                            start,
-                        ];
+                        newRange = [format === 'YYYY-MM-DD' ? formatDate(date) : date, start];
                     } else {
-                        newRange = [
-                            start,
-                            format === 'YYYY-MM-DD' ? formatDate(date) : date,
-                        ];
+                        newRange = [start, format === 'YYYY-MM-DD' ? formatDate(date) : date];
                     }
                 }
 
                 setSelectedValue(newRange);
                 onChange?.(newRange);
+
+                // 范围模式：当两个日期都选择完成后自动关闭
+                if (newRange[0] && newRange[1]) {
+                    close?.();
+                }
             }
         },
         [mode, selectedValue, format, onChange, disabled, minDate, maxDate],
@@ -181,8 +176,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
     const handleClear = useCallback(
         (e: React.MouseEvent) => {
             e.stopPropagation();
-            const newValue: DateValue | DateRange =
-                mode === 'single' ? null : [null, null];
+            const newValue: DateValue | DateRange = mode === 'single' ? null : [null, null];
             setSelectedValue(newValue);
             onChange?.(newValue);
         },
@@ -203,133 +197,130 @@ export const DatePicker: React.FC<DatePickerProps> = ({
     }, []);
 
     // 渲染日历网格
-    const renderCalendarGrid = useCallback(() => {
-        const year = currentDate.getFullYear();
-        const month = currentDate.getMonth();
-        const daysInMonth = getDaysInMonth(year, month);
-        const firstDayOfMonth = getFirstDayOfMonth(year, month);
+    const renderCalendarGrid = useCallback(
+        (close?: () => void) => {
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+            const daysInMonth = getDaysInMonth(year, month);
+            const firstDayOfMonth = getFirstDayOfMonth(year, month);
 
-        const days: (Date | null)[] = [];
+            const days: (Date | null)[] = [];
 
-        // 填充上个月的日期
-        for (let i = 0; i < firstDayOfMonth; i++) {
-            const prevMonth = new Date(
-                year,
-                month - 1,
-                getDaysInMonth(year, month - 1) - firstDayOfMonth + i + 1,
-            );
-            days.push(prevMonth);
-        }
+            // 填充上个月的日期
+            for (let i = 0; i < firstDayOfMonth; i++) {
+                const prevMonth = new Date(
+                    year,
+                    month - 1,
+                    getDaysInMonth(year, month - 1) - firstDayOfMonth + i + 1,
+                );
+                days.push(prevMonth);
+            }
 
-        // 填充当前月的日期
-        for (let i = 1; i <= daysInMonth; i++) {
-            days.push(new Date(year, month, i));
-        }
+            // 填充当前月的日期
+            for (let i = 1; i <= daysInMonth; i++) {
+                days.push(new Date(year, month, i));
+            }
 
-        // 填充下个月的日期
-        const remainingDays = 42 - days.length;
-        for (let i = 1; i <= remainingDays; i++) {
-            days.push(new Date(year, month + 1, i));
-        }
+            // 填充下个月的日期
+            const remainingDays = 42 - days.length;
+            for (let i = 1; i <= remainingDays; i++) {
+                days.push(new Date(year, month + 1, i));
+            }
 
-        return days.map((date, index) => {
-            if (!date) return <div key={index} className="h-8" />;
-
-            const isCurrentMonth = date.getMonth() === month;
-            const isToday = isSameDay(date, new Date());
-            const isSelected =
-                mode === 'single'
-                    ? (() => {
-                          const singleValue = selectedValue as DateValue;
-                          if (!singleValue) return false;
-                          const selectedDate =
-                              typeof singleValue === 'string'
-                                  ? parseDate(singleValue)
-                                  : singleValue;
-                          return selectedDate
-                              ? isSameDay(date, selectedDate)
-                              : false;
-                      })()
-                    : (() => {
-                          const rangeValue = selectedValue as DateRange;
-                          if (!rangeValue[0] && !rangeValue[1]) return false;
-
-                          const start = rangeValue[0]
-                              ? typeof rangeValue[0] === 'string'
-                                  ? parseDate(rangeValue[0])
-                                  : rangeValue[0]
-                              : null;
-                          const end = rangeValue[1]
-                              ? typeof rangeValue[1] === 'string'
-                                  ? parseDate(rangeValue[1])
-                                  : rangeValue[1]
-                              : null;
-
-                          if (start && end) {
-                              return (
-                                  isSameDay(date, start) ||
-                                  isSameDay(date, end) ||
-                                  (date >= start && date <= end)
-                              );
-                          }
-                          return start ? isSameDay(date, start) : false;
-                      })();
-
-            const isInHoverRange =
-                mode === 'range' &&
-                hoverDate &&
-                (() => {
-                    const rangeValue = selectedValue as DateRange;
-                    if (!rangeValue[0]) return false;
-
-                    const start =
-                        typeof rangeValue[0] === 'string'
-                            ? parseDate(rangeValue[0])
-                            : rangeValue[0];
-                    if (!start) return false;
-
+            return days.map((date, index) => {
+                if (!date)
                     return (
-                        (date >= start && date <= hoverDate) ||
-                        (date >= hoverDate && date <= start)
+                        <div
+                            key={index}
+                            className="h-8"
+                        />
                     );
-                })();
 
-            const isDisabled =
-                (minDate && date < minDate) || (maxDate && date > maxDate);
+                const isCurrentMonth = date.getMonth() === month;
+                const isToday = isSameDay(date, new Date());
+                const isSelected =
+                    mode === 'single'
+                        ? (() => {
+                              const singleValue = selectedValue as DateValue;
+                              if (!singleValue) return false;
+                              const selectedDate =
+                                  typeof singleValue === 'string'
+                                      ? parseDate(singleValue)
+                                      : singleValue;
+                              return selectedDate ? isSameDay(date, selectedDate) : false;
+                          })()
+                        : (() => {
+                              const rangeValue = selectedValue as DateRange;
+                              if (!rangeValue[0] && !rangeValue[1]) return false;
 
-            return (
-                <button
-                    key={index}
-                    className={`
+                              const start = rangeValue[0]
+                                  ? typeof rangeValue[0] === 'string'
+                                      ? parseDate(rangeValue[0])
+                                      : rangeValue[0]
+                                  : null;
+                              const end = rangeValue[1]
+                                  ? typeof rangeValue[1] === 'string'
+                                      ? parseDate(rangeValue[1])
+                                      : rangeValue[1]
+                                  : null;
+
+                              if (start && end) {
+                                  return (
+                                      isSameDay(date, start) ||
+                                      isSameDay(date, end) ||
+                                      (date >= start && date <= end)
+                                  );
+                              }
+                              return start ? isSameDay(date, start) : false;
+                          })();
+
+                const isInHoverRange =
+                    mode === 'range' &&
+                    hoverDate &&
+                    (() => {
+                        const rangeValue = selectedValue as DateRange;
+                        if (!rangeValue[0]) return false;
+
+                        const start =
+                            typeof rangeValue[0] === 'string'
+                                ? parseDate(rangeValue[0])
+                                : rangeValue[0];
+                        if (!start) return false;
+
+                        return (
+                            (date >= start && date <= hoverDate) ||
+                            (date >= hoverDate && date <= start)
+                        );
+                    })();
+
+                const isDisabled = (minDate && date < minDate) || (maxDate && date > maxDate);
+
+                return (
+                    <button
+                        key={index}
+                        className={`
             h-8 w-8 rounded-md text-sm font-medium transition-colors
             ${!isCurrentMonth ? 'text-gray-400' : 'text-gray-900'}
             ${isToday ? 'bg-primary/10 text-primary' : ''}
-            ${isSelected ? 'bg-primary text-white' : ''}
+            ${isSelected ? 'bg-primary !text-white' : ''}
             ${isInHoverRange && !isSelected ? 'bg-primary/5' : ''}
-            ${isDisabled ? 'text-gray-300 cursor-not-allowed' : 'hover:bg-dark-primary cursor-pointer'}
+            ${isDisabled ? 'text-gray-300 cursor-not-allowed' : 'hover:text-dark-primary cursor-pointer'}
           `}
-                    onClick={() => !isDisabled && handleDateSelect(date)}
-                    onMouseEnter={() => !isDisabled && setHoverDate(date)}
-                    onMouseLeave={() => setHoverDate(null)}
-                    disabled={isDisabled}
-                >
-                    {date.getDate()}
-                </button>
-            );
-        });
-    }, [
-        currentDate,
-        selectedValue,
-        mode,
-        hoverDate,
-        minDate,
-        maxDate,
-        handleDateSelect,
-    ]);
+                        onClick={() => !isDisabled && handleDateSelect(date, close)}
+                        onMouseEnter={() => !isDisabled && setHoverDate(date)}
+                        onMouseLeave={() => setHoverDate(null)}
+                        disabled={isDisabled}>
+                        {date.getDate()}
+                    </button>
+                );
+            });
+        },
+        [currentDate, selectedValue, mode, hoverDate, minDate, maxDate, handleDateSelect],
+    );
 
     return (
         <Popover className={`relative inline-block ${className}`}>
-            {({ open }) => {
+            {({ open, close }) => {
                 // 同步 open 状态到外部
                 useEffect(() => {
                     onOpenChange?.(open);
@@ -349,25 +340,20 @@ export const DatePicker: React.FC<DatePickerProps> = ({
                                 min-w-[200px]
                                 ${disabled ? 'bg-gray-50 text-gray-500 cursor-not-allowed' : 'cursor-pointer hover:border-primary'}
                                 focus:outline-none 
-                            `}
-                        >
+                            `}>
                             <span className="block truncate">
                                 {getDisplayText() || placeholder}
                             </span>
 
                             {/* 日历图标/清除按钮 */}
                             <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                                {allowClear &&
-                                selectedValue &&
-                                !disabled &&
-                                isHovering ? (
+                                {allowClear && selectedValue && !disabled && isHovering ? (
                                     <button
                                         onClick={(e) => {
                                             e.stopPropagation();
                                             handleClear(e);
                                         }}
-                                        className="text-gray-400 hover:text-dark-primary transition-colors"
-                                    >
+                                        className="text-gray-400 hover:text-dark-primary transition-colors">
                                         <XCircleIcon className="h-4 w-4" />
                                     </button>
                                 ) : (
@@ -382,37 +368,28 @@ export const DatePicker: React.FC<DatePickerProps> = ({
                         {open &&
                             createPortal(
                                 <PopoverPanel
-                                    className="fixed z-50 bg-white border border-gray-300 rounded-md shadow-lg min-w-[280px]"
+                                    className="fixed z-2000 bg-white border border-gray-200 rounded-md shadow-lg min-w-[280px]"
                                     style={{
                                         top: `${panelPosition.top}px`,
                                         left: `${panelPosition.left}px`,
-                                    }}
-                                >
+                                    }}>
                                     <div className="p-1">
                                         {/* 面板头部 */}
                                         <div className="flex items-center justify-between p-3 border-b border-gray-200">
                                             <button
-                                                onClick={() =>
-                                                    navigateMonth('prev')
-                                                }
-                                                className="p-1 hover:bg-dark-primary rounded"
-                                            >
+                                                onClick={() => navigateMonth('prev')}
+                                                className="p-1 hover:text-dark-primary ">
                                                 <ChevronLeftIcon className="h-4 w-4" />
                                             </button>
 
                                             <div className="text-sm font-medium">
                                                 {currentDate.getFullYear()}年{' '}
-                                                {getMonthName(
-                                                    currentDate.getMonth(),
-                                                )}
+                                                {getMonthName(currentDate.getMonth())}
                                             </div>
 
                                             <button
-                                                onClick={() =>
-                                                    navigateMonth('next')
-                                                }
-                                                className="p-1 hover:bg-dark-primary rounded"
-                                            >
+                                                onClick={() => navigateMonth('next')}
+                                                className="p-1 hover:text-dark-primary rounded">
                                                 <ChevronRightIcon className="h-4 w-4" />
                                             </button>
                                         </div>
@@ -422,8 +399,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
                                             {getWeekDays().map((day) => (
                                                 <div
                                                     key={day}
-                                                    className="h-8 flex items-center justify-center text-xs font-medium text-gray-500"
-                                                >
+                                                    className="h-8 flex items-center justify-center text-xs font-medium text-gray-500">
                                                     {day}
                                                 </div>
                                             ))}
@@ -431,24 +407,17 @@ export const DatePicker: React.FC<DatePickerProps> = ({
 
                                         {/* 日历网格 */}
                                         <div className="grid grid-cols-7 gap-1 p-2">
-                                            {renderCalendarGrid()}
+                                            {renderCalendarGrid(close)}
                                         </div>
 
                                         {/* 面板底部 */}
                                         <div className="p-3 border-t border-gray-200">
                                             <div className="flex justify-between items-center text-xs text-gray-500">
-                                                <span>
-                                                    今天:{' '}
-                                                    {formatDate(
-                                                        new Date(),
-                                                        format,
-                                                    )}
-                                                </span>
+                                                <span>今天: {formatDate(new Date(), format)}</span>
                                                 {mode === 'range' && (
                                                     <span className="text-primary">
                                                         选择范围:{' '}
-                                                        {getDisplayText() ||
-                                                            '请选择开始日期'}
+                                                        {getDisplayText() || '请选择开始日期'}
                                                     </span>
                                                 )}
                                             </div>

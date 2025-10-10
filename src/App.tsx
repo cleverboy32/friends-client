@@ -6,12 +6,15 @@ import Login from './pages/login';
 import DiscoverPage from './pages/discover';
 import ActivityDetailPage from './pages/ActivityDetail';
 import PostActivity from './pages/PostActivity';
+import PersonPage from './pages/person';
 import useUserStore from './store/user';
 
 function App() {
     const { getUserInfo, userInfo, isLoading } = useUserStore();
-
     useEffect(() => {
+        if (location.pathname === '/login' || location.pathname === '/register') {
+            return;
+        }
         getUserInfo().catch(() => {
             // 如果获取失败，说明用户未登录或token已过期，忽略错误
             console.log('获取用户信息失败，用户未登录');
@@ -36,8 +39,14 @@ function App() {
                 <div className="min-h-screen bg-gray-50">
                     <main>
                         <Routes>
-                            <Route path="/" element={<Home />} />
-                            <Route path="/login" element={<Login />} />
+                            <Route
+                                path="/"
+                                element={<Home />}
+                            />
+                            <Route
+                                path="/login"
+                                element={<Login />}
+                            />
                             <Route
                                 path="/discover"
                                 element={<DiscoverPage />}
@@ -49,6 +58,10 @@ function App() {
                             <Route
                                 path="/post-activity"
                                 element={<PostActivity />}
+                            />
+                            <Route
+                                path="/person/:userId"
+                                element={<PersonPage />}
                             />
                         </Routes>
                     </main>

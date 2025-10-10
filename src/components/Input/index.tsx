@@ -6,24 +6,28 @@ import './index.scss';
 export type InputTheme = 'primary' | 'secondary' | 'warning';
 export type InputSize = 'large' | 'medium' | 'small';
 
-export interface InputProps
-    extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size'> {
+export interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size'> {
     label?: string;
     error?: string;
     className?: string;
     size?: InputSize;
+    layout?: 'vertical' | 'horizontal';
+    labelWidth?: string;
 }
 
 const Input = forwardRef<HTMLInputElement, InputProps>(
-    ({ label, error, className = '', size = 'medium', ...props }, ref) => {
+    (
+        { label, error, className = '', size = 'medium', layout, labelWidth = '60px', ...props },
+        ref,
+    ) => {
         const id = useId();
         return (
-            <Field>
+            <Field className={layout === 'vertical' ? 'flex flex-col gap-1' : 'flex items-center'}>
                 {label && (
                     <label
                         htmlFor={id}
-                        className="block mb-1 text-sm font-medium text-gray-700"
-                    >
+                        className="mb-1 text-sm font-medium text-gray-700 flex items-center flex-shrink-0"
+                        style={{ width: labelWidth }}>
                         {label}
                     </label>
                 )}
@@ -33,9 +37,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
                     className={`common-input common-input--${size} ${error ? 'border-red-500' : 'border-gray-200'} ${className}`.trim()}
                     {...props}
                 />
-                {error && (
-                    <div className="mt-1 text-xs text-red-500">{error}</div>
-                )}
+                {error && <div className="mt-1 text-xs text-red-500">{error}</div>}
             </Field>
         );
     },

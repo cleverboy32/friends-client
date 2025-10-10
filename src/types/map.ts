@@ -12,11 +12,10 @@ export namespace AutoComplete {
         status: string;
         info: string;
         count: number;
-        tips: Tip[];
     }
 
     export interface Poi {
-        id: string;
+        id: number;
         name: string;
         type: string;
         typecode: string;
@@ -25,7 +24,8 @@ export namespace AutoComplete {
         adcode: string;
         adname: string;
         citycode: string;
-        cityname: string;
+        city: string;
+        district: string;
         provincecode: string;
         provincename: string;
     }

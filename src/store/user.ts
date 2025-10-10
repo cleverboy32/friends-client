@@ -34,8 +34,8 @@ const useUserStore = create<UserState>((set, get) => ({
     getUserInfo: async () => {
         try {
             set({ isLoading: true });
-            const userInfo = await getUserInfoApi();
-            set({ userInfo });
+            const data = await getUserInfoApi();
+            set({ userInfo: data });
         } catch (error) {
             // 如果获取用户信息失败，清除用户信息
             get().clearUserInfo();
@@ -49,8 +49,8 @@ const useUserStore = create<UserState>((set, get) => ({
     login: async (params) => {
         try {
             set({ isLoading: true });
-            const { userInfo } = await loginApi(params);
-            set({ userInfo });
+            const data = await loginApi(params);
+            set({ userInfo: data });
         } catch (error) {
             // 错误已经被 request.ts 处理
             throw error;
@@ -63,8 +63,8 @@ const useUserStore = create<UserState>((set, get) => ({
     register: async (params) => {
         try {
             set({ isLoading: true });
-            const { userInfo } = await registerApi(params);
-            set({ userInfo });
+            const data = await registerApi(params);
+            set({ userInfo: data });
         } catch (error) {
             throw error;
         } finally {

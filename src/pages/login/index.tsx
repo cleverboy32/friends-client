@@ -25,9 +25,7 @@ export default function Login() {
                         alt="logo"
                         className="w-10 h-10"
                     />
-                    <span className="text-3xl font-bold text-primary">
-                        搭子
-                    </span>
+                    <span className="text-3xl font-bold text-primary">搭子</span>
                 </div>
             </nav>
 
@@ -36,20 +34,16 @@ export default function Login() {
                 <div className="flex flex-col items-center flex-1 bg-white rounded-lg p-12">
                     <p className="mb-6 text-center text-gray-700">
                         欢迎👏🏻，你的【
-                        <span className="inline-block w-[160px] text-3xl border-b border-gray-400 align-middle transition-all duration-300 text-green-700 font-semibold">
+                        <span className="inline-block w-[160px] text-3xl border-b border-gray-200 align-middle transition-all duration-300 text-green-700 font-semibold">
                             {words[currentWordIndex]}
                         </span>
                         】正在等你 ~
                     </p>
                     <div className="mt-4 px-10">
                         {isLoginMode ? (
-                            <LoginForm
-                                onSwitchToRegister={() => setIsLoginMode(false)}
-                            />
+                            <LoginForm onSwitchToRegister={() => setIsLoginMode(false)} />
                         ) : (
-                            <RegisterForm
-                                onSwitchToLogin={() => setIsLoginMode(true)}
-                            />
+                            <RegisterForm onSwitchToLogin={() => setIsLoginMode(true)} />
                         )}
                     </div>
                 </div>

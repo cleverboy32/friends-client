@@ -1,5 +1,4 @@
-import { Dialog, DialogPanel, DialogTitle } from '@headlessui/react';
-import { useState } from 'react';
+import { Dialog, DialogPanel } from '@headlessui/react';
 
 interface ModalProps {
     visible: boolean;
@@ -14,7 +13,7 @@ const Modal = ({ visible, onClose, children, className }: ModalProps) => {
             open={visible}
             as="div"
             className="relative z-1000"
-            onClose={close}>
+            onClose={onClose}>
             <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
                 <div
                     id="mask"

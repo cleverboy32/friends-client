@@ -4,9 +4,10 @@ export interface UserInfo {
     avatar?: string;
     email?: string;
     phone?: string;
-    gender?: 'male' | 'female' | 'other';
+    gender?: 'MALE' | 'FEMALE' | 'OTHER';
     createdAt: string;
     updatedAt: string;
+    bio?: string;
 }
 
 export interface LoginParams {
@@ -23,5 +24,8 @@ export interface UpdateUserParams {
     avatar?: string;
     email?: string;
     phone?: string;
-    gender?: 'male' | 'female' | 'other';
+    gender?: 'MALE' | 'FEMALE' | 'OTHER';
+    name?: string;
+    bio?: string;
+    birthday?: string; // ISO 字符串 (yyyy-MM-dd)
 }

@@ -44,23 +44,19 @@ request.interceptors.response.use(
     (response: AxiosResponse<ResponseData>) => {
         const res = response.data;
 
-        // 根据后端的错误码进行处理
         if (res.code !== 200) {
             showErrorMessage(res.message || '请求失败');
-
-            // 处理特定错误码
-            if (res.code === 401) {
-                // token过期或未登录
-                window.location.href = '/login';
-            }
-
             return Promise.reject(new Error(res.message || '请求失败'));
         }
+
+        console.log(res.data);
 
         return res.data;
     },
     (error: AxiosError<ResponseData>) => {
-        if (error.response?.data) {
+        if (error.status === 401) {
+            window.location.href = '/login';
+        } else if (error.response?.data) {
             showErrorMessage(error.response.data.message || '请求失败');
         } else if (error.request) {
             // 请求已发出但没有收到响应
@@ -74,29 +70,17 @@ request.interceptors.response.use(
 );
 
 // 封装GET请求
-export function get<T = any>(
-    url: string,
-    params?: any,
-    config?: AxiosRequestConfig,
-) {
+export function get<T = any>(url: string, params?: any, config?: AxiosRequestConfig) {
     return request.get<any, T>(url, { params, ...config });
 }
 
 // 封装POST请求
-export function post<T = any>(
-    url: string,
-    data?: any,
-    config?: AxiosRequestConfig,
-) {
+export function post<T = any>(url: string, data?: any, config?: AxiosRequestConfig) {
     return request.post<any, T>(url, data, config);
 }
 
 // 封装PUT请求
-export function put<T = any>(
-    url: string,
-    data?: any,
-    config?: AxiosRequestConfig,
-) {
+export function put<T = any>(url: string, data?: any, config?: AxiosRequestConfig) {
     return request.put<any, T>(url, data, config);
 }
 

@@ -24,7 +24,7 @@
 
 .common-btn--primary {
     background: var(--color-primary);
-    color: #222;
+    color: #fff;
 }
 
 .common-btn--primary::hover {
@@ -32,12 +32,12 @@
 }
 
 .common-btn--theme {
-    background: var(--color-theme);
+    background: var(--color-dark-theme);
     color: #fff;
 }
 
 .common-btn--theme:hover {
-    background: var(--color-dark-theme);
+    background: var(--color-theme);
 }
 
 .common-btn--warning {
