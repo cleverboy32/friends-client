@@ -37,14 +37,13 @@ const ActivityCard: React.FC<ActivityCardProps> = ({ activity, onClick, classNam
         <div
             onClick={handleClick}
             className={`relative cursor-pointer w-[250px] overflow-hidden ${className}`}>
-            <div className="relative bg-white rounded-lg border border-light-bg-theme/60">
+            <div
+                className={`relative bg-white rounded-lg border border-light-bg-theme/60 ${
+                    activity.image ? 'bg-center bg-no-repeat bg-cover' : ''
+                }`}
+                style={activity.image ? { backgroundImage: `url(${activity.image})` } : undefined}>
                 <div className=" flex items-center justify-center min-h-[200px] ">
-                    {activity.image ? (
-                        <img
-                            src={activity.image}
-                            className="h-[170px] object-cover"
-                        />
-                    ) : (
+                    {!activity.image && (
                         <div className="text-[18px] ">
                             <span className="bg-clip-text text-transparent bg-[linear-gradient(90deg,#FF4D4F,#FAAD14,#52C41A,#13C2C2,#1677FF,#722ED1,#EB2F96)]">
                                 {activity.title}
@@ -54,7 +53,7 @@ const ActivityCard: React.FC<ActivityCardProps> = ({ activity, onClick, classNam
                     )}
                 </div>
 
-                <div className="space-y-2 text-sm text-gray-500 h-[80px] p-[12px]">
+                <div className="space-y-2 text-sm text-gray-200 p-[12px] bg-black/15">
                     <div className="bg-primary text-white text-xs px-2 py-1 rounded-full font-medium inline-block">
                         {activity.reward}
                     </div>
@@ -69,7 +68,7 @@ const ActivityCard: React.FC<ActivityCardProps> = ({ activity, onClick, classNam
                 </div>
             </div>
 
-            <div className="p-[12px]">
+            <div className="p-[12px] ">
                 <h3 className="font-semibold text-gray-800 mb-2 line-clamp-1">{activity.title}</h3>
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">

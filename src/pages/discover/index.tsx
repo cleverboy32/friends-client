@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Map, { MAP_STYLES } from '../../components/Map';
-import RadioGroup from '@/components/Radio';
+import NavigationTabBar from '@/components/Tag';
 import Input from '@/components/Input';
 import ActivityCard, { type Activity } from '@/components/ActivityCard';
 import { useOptions } from '@/hooks/useOptions';
@@ -30,6 +30,7 @@ const DiscoverPage: React.FC = () => {
     const handleFilterChange = useCallback(
         (key: keyof ActivityQueryParams, value: string | number) => {
             setFilter((prev) => ({ ...prev, [key]: value }));
+            page.current = 1; // 重置页码
         },
         [],
     );
@@ -68,11 +69,17 @@ const DiscoverPage: React.FC = () => {
                     `https://via.placeholder.com/120x80/4ade80/ffffff?text=${item.title.charAt(0)}`,
             }));
 
-            setActivities(convertedActivities);
+            if (page.current === 1) {
+                setActivities(convertedActivities);
+            } else {
+                setActivities(prev => [...prev, ...convertedActivities]);
+            }
             page.current = response.page + 1;
         } catch (error) {
             console.error('获取活动列表失败:', error);
-            setActivities([]);
+            if (page.current === 1) {
+                setActivities([]);
+            }
         } finally {
             loadingRef.current = false;
             setLoading(false);
@@ -82,7 +89,7 @@ const DiscoverPage: React.FC = () => {
     // 获取活动数据
     useEffect(() => {
         fetchActivities();
-    }, []);
+    }, [filter]);
 
     const handleActivityClick = useCallback(
         (activityId: string) => {
@@ -168,26 +175,47 @@ const DiscoverPage: React.FC = () => {
                     </div>
                 </div>
 
-                <div className="flex  gap-10 bg-gray-50">
-                    <RadioGroup
-                        value={filter.type}
-                        options={categoryOptions}
-                        variant="segmented"
-                        onChange={(value) =>
-                            handleFilterChange('type', value as 'ONLINE' | 'OFFLINE')
-                        }
-                    />
-                    <RadioGroup
-                        value={filter.distance}
-                        options={distanceOptions}
-                        variant="segmented"
-                        onChange={(value) => handleFilterChange('distance', value)}
-                    />
-                    <RadioGroup
-                        value={filter.timeRange}
-                        options={timeOptions}
-                        variant="segmented"
-                        onChange={(value) => handleFilterChange('timeRange', value)}
+                <div className="bg-gray-50 px-4">
+                    {/* 统一的筛选标签栏 */}
+                    <NavigationTabBar
+                        tabs={[
+                            ...categoryOptions.map(option => ({
+                                id: `type-${option.value}`,
+                                label: option.label,
+                                category: 'type' as const,
+                                value: option.value as string
+                            })),
+                            ...distanceOptions.map(option => ({
+                                id: `distance-${option.value}`,
+                                label: option.label,
+                                category: 'distance' as const,
+                                value: option.value.toString()
+                            })),
+                            ...timeOptions.map(option => ({
+                                id: `time-${option.value}`,
+                                label: option.label,
+                                category: 'timeRange' as const,
+                                value: option.value.toString()
+                            }))
+                        ]}
+                        defaultActiveTab={(() => {
+                            if (filter.type !== 'OFFLINE') return `type-${filter.type}`;
+                            if (filter.distance !== '1000') return `distance-${filter.distance}`;
+                            if (filter.timeRange !== '7') return `time-${filter.timeRange}`;
+                            return `type-${filter.type}`;
+                        })()}
+                        onTabChange={(tabId) => {
+                            const [category, value] = tabId.split('-');
+                            if (category === 'type') {
+                                handleFilterChange('type', value as 'ONLINE' | 'OFFLINE');
+                            } else if (category === 'distance') {
+                                handleFilterChange('distance', value);
+                            } else if (category === 'time') {
+                                handleFilterChange('timeRange', value);
+                            }
+                        }}
+                        showBottomBorder={false}
+                        className="bg-transparent"
                     />
                 </div>
 
