@@ -13,7 +13,7 @@ interface LocationPickerProps {
     onClose: () => void;
 }
 
-const LocationPicker: React.FC<LocationPickerProps> = ({ value, onChange, onClose, visible }) => {
+const LocationPicker: React.FC<LocationPickerProps> = ({ onChange, onClose, visible }) => {
     const mapRef = useRef<MapRef>(null);
     const poiRef = useRef<AutoComplete.Poi | null>(null);
 

@@ -5,7 +5,8 @@
     "type": "module",
     "scripts": {
         "dev": "vite",
-        "build": "tsc -b && vite build",
+        "build": "tsc -b && NODE_OPTIONS='--max-old-space-size=512' vite build",
+        "build:low-memory": "tsc -b && NODE_OPTIONS='--max-old-space-size=256' vite build",
         "lint": "eslint .",
         "preview": "vite preview",
         "format": "prettier --write .",
@@ -14,6 +15,10 @@
     "dependencies": {
         "@amap/amap-jsapi-loader": "^1.0.1",
         "@amap/amap-jsapi-types": "^0.0.15",
+        "@capacitor/android": "^7.4.4",
+        "@capacitor/cli": "^7.4.4",
+        "@capacitor/core": "^7.4.4",
+        "@capacitor/ios": "^7.4.4",
         "@headlessui/react": "^2.2.6",
         "@heroicons/react": "^2.2.0",
         "axios": "^1.11.0",

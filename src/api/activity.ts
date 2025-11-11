@@ -27,7 +27,7 @@ export const getActivityDetail = (activityId: number) => {
 };
 
 // 更新活动信息
-export const updateActivity = (activityId: number, data: UpdateActivityParams) => {
+export const updateActivity = (_activityId: number, data: UpdateActivityParams) => {
     return put<Activity>(`/activity/update`, data);
 };
 

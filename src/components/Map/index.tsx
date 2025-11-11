@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useImperativeHandle, useCallback, memo } from 'react';
 import AMapLoader from '@amap/amap-jsapi-loader';
-import type { AutoComplete, PlaceSearch } from '@/types/map';
+import type { AutoComplete } from '@/types/map';
 
 interface Marker {
     id: string;

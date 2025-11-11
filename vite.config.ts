@@ -19,4 +19,23 @@ export default defineConfig({
             '@/enum': path.resolve(__dirname, './src/enum'),
         },
     },
+    build: {
+        // 减少内存使用的构建配置
+        target: 'es2015',
+        minify: 'esbuild', // esbuild比terser内存使用更少
+        rollupOptions: {
+            output: {
+                manualChunks: {
+                    // 分割大模块，减少单个chunk的内存使用
+                    vendor: ['react', 'react-dom'],
+                    ui: ['@headlessui/react', '@heroicons/react'],
+                    utils: ['axios', 'zustand'],
+                },
+            },
+        },
+        // 禁用source map以节省内存
+        sourcemap: false,
+        // 减少chunk大小限制
+        chunkSizeWarningLimit: 1000,
+    },
 });

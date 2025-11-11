@@ -1,9 +1,6 @@
 import React from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination, Autoplay } from 'swiper/modules';
-import 'swiper/css';
-import 'swiper/css/navigation';
-import 'swiper/css/pagination';
 import './index.css';
 
 const comments = [
@@ -22,8 +19,7 @@ const comments = [
     {
         avatar: '/src/assets/logo.png',
         name: '王芳',
-        content:
-            '在这里认识了很多志同道合的朋友，大家互帮互助，合作愉快。推荐给想拓展社交圈的你！',
+        content: '在这里认识了很多志同道合的朋友，大家互帮互助，合作愉快。推荐给想拓展社交圈的你！',
     },
 ];
 
@@ -36,8 +32,7 @@ const CommentsCarousel: React.FC = () => {
                 pagination={{ clickable: true }}
                 autoplay={{ delay: 5000, disableOnInteraction: false }}
                 loop
-                className="swiper-testimonials"
-            >
+                className="swiper-testimonials">
                 {comments.map((item, idx) => (
                     <SwiperSlide key={idx}>
                         <div className="testimonial-content ">

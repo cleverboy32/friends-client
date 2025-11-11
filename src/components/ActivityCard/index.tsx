@@ -16,8 +16,8 @@ interface Activity {
     distance: number;
     coordinates: [number, number];
     image: string;
-    avatar: string;
-    jionPeople: number;
+    avatar?: string;
+    jionPeople?: number;
 }
 
 interface ActivityCardProps {

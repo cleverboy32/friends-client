@@ -28,7 +28,7 @@ interface ActivityForm {
 
 const PostActivity: React.FC = () => {
     const navigate = useNavigate();
-    const [selectedTab, setSelectedTab] = useState('topic');
+    const [_selectedTab, setSelectedTab] = useState('topic');
     const [isPublishing, setIsPublishing] = useState(false);
     const { userInfo } = useUserStore();
 
@@ -293,7 +293,6 @@ const PostActivity: React.FC = () => {
 
                     <Tab
                         tabs={tabs}
-                        selected={selectedTab}
                         onChange={(tab) => setSelectedTab(tab.id)}
                     />
                 </div>
@@ -406,7 +405,6 @@ const PostActivity: React.FC = () => {
                             },
                         ]}
                         variant="underline"
-                        selected="preview"
                     />
                 </div>
 

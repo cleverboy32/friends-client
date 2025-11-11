@@ -1,4 +1,4 @@
-import { get, post, put } from '@/utils/request';
+import { get, post } from '@/utils/request';
 import type { UserInfo, LoginParams, RegisterParams, UpdateUserParams } from '@/types/user';
 
 // 用户登录

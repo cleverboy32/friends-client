@@ -23,7 +23,7 @@ const DiscoverPage: React.FC = () => {
 
     const [activities, setActivities] = useState<Activity[]>([]);
 
-    const [loading, setLoading] = useState(false);
+    const [_loading, setLoading] = useState(false);
     const loadingRef = useRef(false);
 
     // 使用 useCallback 优化 filter 变化处理函数
@@ -49,7 +49,7 @@ const DiscoverPage: React.FC = () => {
             });
 
             // 转换API数据格式为ActivityCard组件期望的格式
-            const convertedActivities: Activity[] = response.items.map((item: any) => ({
+            const convertedActivities: Activity[] = response.items.map((item) => ({
                 id: item.id.toString(),
                 title: item.title,
                 content: item.content,
@@ -72,7 +72,7 @@ const DiscoverPage: React.FC = () => {
             if (page.current === 1) {
                 setActivities(convertedActivities);
             } else {
-                setActivities(prev => [...prev, ...convertedActivities]);
+                setActivities((prev) => [...prev, ...convertedActivities]);
             }
             page.current = response.page + 1;
         } catch (error) {
@@ -179,24 +179,24 @@ const DiscoverPage: React.FC = () => {
                     {/* 统一的筛选标签栏 */}
                     <NavigationTabBar
                         tabs={[
-                            ...categoryOptions.map(option => ({
+                            ...categoryOptions.map((option) => ({
                                 id: `type-${option.value}`,
                                 label: option.label,
                                 category: 'type' as const,
-                                value: option.value as string
+                                value: option.value as string,
                             })),
-                            ...distanceOptions.map(option => ({
+                            ...distanceOptions.map((option) => ({
                                 id: `distance-${option.value}`,
                                 label: option.label,
                                 category: 'distance' as const,
-                                value: option.value.toString()
+                                value: option.value.toString(),
                             })),
-                            ...timeOptions.map(option => ({
+                            ...timeOptions.map((option) => ({
                                 id: `time-${option.value}`,
                                 label: option.label,
                                 category: 'timeRange' as const,
-                                value: option.value.toString()
-                            }))
+                                value: option.value.toString(),
+                            })),
                         ]}
                         defaultActiveTab={(() => {
                             if (filter.type !== 'OFFLINE') return `type-${filter.type}`;

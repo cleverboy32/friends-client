@@ -3,6 +3,7 @@ import React from 'react';
 interface RadioOption {
     label: string;
     value: string | number;
+    disabled?: boolean;
 }
 
 interface RadioGroupProps {

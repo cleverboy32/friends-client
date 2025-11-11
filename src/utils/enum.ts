@@ -1,9 +1,11 @@
-const REENUM_FLAG = Symbol('__REENUMED__');
-const REENUM_LIST = Symbol('__REENUM_LIST__');
+const symbols = {
+    REENUM_FLAG: Symbol('__REENUMED__'),
+    REENUM_LIST: Symbol('__REENUM_LIST__'),
+};
 
 /** 给enum对象注入反向映射 */
-export function reEnum(enumObject: Record<string, unknown>) {
-    if ((<unknown>enumObject)[REENUM_FLAG]) return enumObject;
+export function reEnum(enumObject: Record<string | symbol, string | number | [] | boolean>) {
+    if (enumObject[symbols.REENUM_FLAG]) return enumObject;
     Object.keys(enumObject).forEach((k) => {
         const valKey = enumObject[k];
         if (valKey === k) return;
@@ -14,21 +16,21 @@ export function reEnum(enumObject: Record<string, unknown>) {
             );
             return;
         }
-        if (!(<unknown>enumObject)[REENUM_LIST]) {
-            (<unknown>enumObject)[REENUM_LIST] = [];
+        if (!enumObject[symbols.REENUM_LIST]) {
+            enumObject[symbols.REENUM_LIST] = [];
         }
-        (<unknown>enumObject)[REENUM_LIST].push(valKey);
+        (enumObject[symbols.REENUM_LIST] as string[]).push(valKey);
         enumObject[valKey] = k;
     });
-    (<unknown>enumObject)[REENUM_FLAG] = true;
+    enumObject[symbols.REENUM_FLAG] = true;
 }
 
 /** 将一个enum对象转成下拉选项 */
-export function convertEnum2Options(enumObject: Record<string, string>) {
+export function convertEnum2Options(
+    enumObject: Record<string | symbol, string | number | [] | boolean>,
+) {
     let keys = Object.keys(enumObject).filter(
-        (v) =>
-            typeof v !== 'number' &&
-            !(<unknown>enumObject)[REENUM_LIST]?.includes(v),
+        (v) => typeof v !== 'number' && !(enumObject[symbols.REENUM_LIST] as string[])?.includes(v),
     );
     return keys.map((v) => ({
         label: v,

@@ -25,7 +25,7 @@ export interface CreateActivityParams {
     image: string[];
     needPartner: boolean;
     location: {
-        id: number;
+        id?: number;
         latitude: number;
         longitude: number;
         address?: string;

@@ -1,8 +1,3 @@
-interface Option {
-    label: string;
-    value: string | number;
-}
-
 export const useOptions = () => {
     const categoryOptions = [
         { label: '线上', value: 'ONLINE' },

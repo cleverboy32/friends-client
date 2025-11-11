@@ -29,7 +29,7 @@ const PersonPage: React.FC = () => {
                     pageSize: 20,
                 });
 
-                const convertedActivities: Activity[] = response.items.map((item: any) => ({
+                const convertedActivities: Activity[] = response.items.map((item) => ({
                     id: item.id.toString(),
                     title: item.title,
                     content: item.content,
