@@ -7,6 +7,11 @@ export interface Activity {
     createdAt: string;
     needPartner: boolean;
     authorId: number;
+    author: {
+        id: number;
+        name: string;
+        avatar?: string;
+    };
     tags: string[];
     location?: {
         id: number;

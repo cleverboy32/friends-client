@@ -3,6 +3,7 @@ import type { FRProps } from 'form-render';
 import { useNavigate } from 'react-router-dom';
 import Button from '@/components/button';
 import useUserStore from '@/store/user';
+import LiquidGlassButton from '@/components/liquid';
 
 interface LoginFormData {
     name: string;
@@ -52,7 +53,7 @@ export default function LoginForm({ onSwitchToRegister }: Props) {
         try {
             await login(formData);
             // 登录成功，跳转到首页
-            navigate('/');
+            navigate('/discover');
         } catch (error) {
             // 错误已经被统一处理
             console.error('登录失败:', error);
@@ -67,23 +68,24 @@ export default function LoginForm({ onSwitchToRegister }: Props) {
                 displayType="row"
                 onFinish={onSubmit}
                 labelWidth={80}
-                className="w-[400px]"
             />
 
-            <Button
-                type="button"
-                className="py-2 rounded font-semibold w-full"
-                onClick={() => form.submit()}
-                disabled={isLoading}
-            >
-                {isLoading ? '登录中...' : '登录'}
-            </Button>
-
-            <div className="mt-4 text-center">
+            <div className=" text-center">
+                <LiquidGlassButton
+                    height={40}
+                    width={window.innerWidth - 64}
+                    borderRadius={20}
+                    surfaceType="squircle"
+                    onClick={() => form.submit()}
+                    glassThickness={0.2}
+                    bezelWidth={0.38}>
+                    <span className="text-white text-[20px]">
+                        {isLoading ? '登录中...' : '登录'}
+                    </span>
+                </LiquidGlassButton>
                 <button
                     onClick={onSwitchToRegister}
-                    className="text-primary hover:text-primary-dark"
-                >
+                    className="text-primary hover:text-primary-dark mt-4">
                     还没有账号？立即注册
                 </button>
             </div>

@@ -3,11 +3,12 @@ import { useParams } from 'react-router-dom';
 import { getActivityList } from '@/api/activity';
 import useUserStore from '@/store/user';
 import ActivityCard, { type Activity } from '@/components/ActivityCard';
-import Navbar from '@/components/navbar';
+import Navbar from '@/components/Navbar';
 import Button from '@/components/button';
 import EditUser from './components/editUser';
 import { EllipsisHorizontalIcon } from '@heroicons/react/24/outline';
 import Tab from '@/components/Tab';
+import BottomBar from '@/components/BottomBar';
 
 const PersonPage: React.FC = () => {
     const { userId } = useParams<{ userId: string }>();
@@ -35,7 +36,8 @@ const PersonPage: React.FC = () => {
                     content: item.content,
                     time: new Date(item.createdAt).toLocaleString('zh-CN'),
                     location: item.location?.address || '未知地点',
-                    publisher: '发布者', // API中没有author信息，暂时使用默认值
+                    publisher: item.author.name,
+                    avatar: item.author.avatar,
                     reward: `${Math.floor(Math.random() * 200) + 50}积分`, // 暂时随机生成积分
                     participants: Math.floor(Math.random() * 50), // 暂时随机生成参与人数
                     maxParticipants: Math.floor(Math.random() * 100) + 50, // 暂时随机生成最大参与人数
@@ -62,14 +64,14 @@ const PersonPage: React.FC = () => {
     const renderEmpty = useCallback(() => {
         return (
             <div className="text-center py-12">
-                <p className="text-gray-500 text-lg">该用户还没有发布任何活动</p>
+                <p className="text-gray-500 text-lg">还没有任何活动</p>
             </div>
         );
     }, []);
 
     const renderCard = useCallback((activities: Activity[]) => {
         return (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-10">
+            <div className="flex flex-wrap">
                 {activities.map((activity) => (
                     <ActivityCard
                         key={activity.id}
@@ -99,71 +101,60 @@ const PersonPage: React.FC = () => {
     ];
 
     return (
-        <div className="flex">
-            <Navbar />
-
-            <div className="flex-1 flex flex-col px-[100px]">
-                <div className="flex items-start justify-center gap-8 py-[80px]">
-                    <div className="flex-shrink-0 mr-[12px] ">
-                        <div className="w-32 h-32  rounded-full bg-gray-100 ">
-                            {userInfo?.avatar && (
-                                <img
-                                    src={userInfo.avatar}
-                                    alt="avatar"
-                                    className="w-32 h-32 rounded-full object-cover"
-                                />
-                            )}
-                        </div>
-                    </div>
-
-                    <div className=" mr-[150px]">
-                        <h2 className="font-bold mb-[12px] text-xl">
-                            {userInfo?.name || `用户${userId}`}
-                        </h2>
-                        <p className="text-gray-800 mb-[12px] !text-xs lg:text-base">
-                            {userInfo?.bio || '-'}
-                        </p>
-                        {userInfo?.gender && (
-                            <p className="text-gray-600 mb-[12px] text-sm lg:text-base">
-                                {userInfo?.gender === 'FEMALE' ? ' 👧🏻' : '👦🏻'}
-                            </p>
-                        )}
-
-                        <div className="flex items-center justify-center lg:justify-start gap-4 lg:gap-6 text-gray-600 text-sm lg:text-base">
-                            <span>
-                                <span className="font-bold">
-                                    {Math.floor(Math.random() * 50) + 10}{' '}
-                                </span>
-                                关注
-                            </span>
-                            <span>
-                                <span className="font-bold">
-                                    {Math.floor(Math.random() * 30) + 5}{' '}
-                                </span>
-                                粉丝
-                            </span>
-                            <span>
-                                <span className="font-bold">
-                                    {Math.floor(Math.random() * 100) + 20}{' '}
-                                </span>
-                                获赞与收藏
-                            </span>
-                        </div>
-                    </div>
-
-                    <Button onClick={() => setOpenEdit(true)}>编辑</Button>
-                    <EllipsisHorizontalIcon className="w-6 h-6" />
+        <div className="flex flex-col pt-[60px] px-[16px]">
+            <Navbar right={<EllipsisHorizontalIcon className="w-6 h-6" />} />
+            <div className="flex items-start justify-center gap-[20px] pt-[24px] mb-[32px] ">
+                <div className="w-20 h-20  rounded-full bg-gray-100 ">
+                    {userInfo?.avatar && (
+                        <img
+                            src={userInfo.avatar}
+                            alt="avatar"
+                            className="w-20 h-20 rounded-full object-cover"
+                        />
+                    )}
                 </div>
 
-                <Tab
-                    tabs={tabs}
-                    variant="underline"
-                />
+                <div className="flex-1">
+                    <h2 className="font-bold mb-[12px] text-xl">
+                        {userInfo?.name || `用户${userId}`}
+                    </h2>
+                    <p className="text-gray-800 mb-[12px]">{userInfo?.bio || '-'}</p>
+                    {userInfo?.gender && (
+                        <p className="text-gray-600 mb-[12px] text-sm ">
+                            {userInfo?.gender === 'FEMALE' ? ' 👧🏻' : '👦🏻'}
+                        </p>
+                    )}
+
+                    <div className="flex items-start  gap-[20px]  text-gray-600 text-sm ">
+                        <span>
+                            <span className="font-bold">
+                                {Math.floor(Math.random() * 50) + 10}{' '}
+                            </span>
+                            关注
+                        </span>
+                        <span>
+                            <span className="font-bold">{Math.floor(Math.random() * 30) + 5} </span>
+                            粉丝
+                        </span>
+                        <span>
+                            <span className="font-bold">
+                                {Math.floor(Math.random() * 100) + 20}{' '}
+                            </span>
+                            获赞与收藏
+                        </span>
+                    </div>
+                </div>
             </div>
+
+            <Tab
+                tabs={tabs}
+                variant="underline"
+            />
             <EditUser
                 open={openEdit}
                 onClose={() => setOpenEdit(false)}
             />
+            <BottomBar />
         </div>
     );
 };

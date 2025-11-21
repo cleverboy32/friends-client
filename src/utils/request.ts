@@ -21,7 +21,7 @@ const showErrorMessage = (message: string) => {
 
 // 创建axios实例
 const request: AxiosInstance = axios.create({
-    baseURL: import.meta.env.VITE_API_URL || '/api', // 设置baseURL
+    baseURL: '/api', // 设置baseURL
     timeout: 10000, // 请求超时时间
     headers: {
         'Content-Type': 'application/json',

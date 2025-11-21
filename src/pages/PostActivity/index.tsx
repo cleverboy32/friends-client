@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Router, useNavigate } from 'react-router-dom';
 import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 import { MapPinIcon } from '@heroicons/react/24/solid';
 import LocationPicker from '@/components/LocationPicker';
@@ -11,10 +11,10 @@ import Tab from '@/components/Tab';
 import Select from '@/components/Select';
 import Switch from '@/components/Switch';
 import Button from '@/components/button';
-import ActivityCard from '@/components/ActivityCard';
 import { createActivity } from '@/api/activity';
 import type { CreateActivityParams, Location } from '@/types/activity';
 import useUserStore from '@/store/user';
+import Navbar from '@/components/Navbar';
 
 interface ActivityForm {
     title: string;
@@ -126,7 +126,9 @@ const PostActivity: React.FC = () => {
             if (response) {
                 alert('活动发布成功！');
                 // 跳转到活动详情页或者首页
-                navigate('/discover');
+                navigate('/discover', {
+                    replace: true,
+                });
             }
         } catch (error: any) {
             console.error('发布活动失败:', error);
@@ -160,30 +162,9 @@ const PostActivity: React.FC = () => {
         }
     };
 
-    // 创建预览用的活动对象，适配 ActivityCard 组件的接口
-    const previewActivity = useMemo(
-        () => ({
-            id: '0', // 预览用的临时 ID
-            title: form.title || '活动标题预览',
-            content: form.content || '这里是活动内容的预览...',
-            time: new Date().toLocaleString(),
-            location: form.location
-                ? `${form.location.city} ${form.location.address || ''}`
-                : '未选择地点',
-            publisher: userInfo?.name || '',
-            avatar: userInfo?.avatar || '',
-            reward: form.needPartner
-                ? '寻找合作伙伴'
-                : `${form.type === 'ONLINE' ? '线上' : '线下'}活动`,
-            participants: 0,
-            maxParticipants: 10,
-            category: form.tags.length > 0 ? form.tags[0] : '其他',
-            distance: 0,
-            coordinates: [0, 0] as [number, number],
-            image: form.images.length > 0 ? form.images[0].url || form.images[0].name : '',
-        }),
-        [form],
-    );
+    const handleBack = () => {
+        navigate(-1);
+    };
 
     const activityTopics = [
         { id: 1, name: '夏天用游泳开场', type: 'activity' },
@@ -196,7 +177,7 @@ const PostActivity: React.FC = () => {
             id: 'topic',
             label: '#话题',
             content: (
-                <div className="bg-white rounded-lg mb-6 gap-3 flex-wrap flex">
+                <div className=" rounded-lg mb-6 gap-3 flex-wrap flex">
                     {activityTopics.map((topic) => (
                         <div
                             key={topic.id}
@@ -224,193 +205,169 @@ const PostActivity: React.FC = () => {
     ];
 
     return (
-        <div className="flex min-h-screen bg-gray-50">
-            <div className="flex-1 p-6">
-                <div className="flex items-center mb-6">
-                    <button
-                        className="p-2 hover:bg-gray-100 rounded-lg mr-3"
-                        onClick={() => navigate(-1)}>
-                        <ArrowLeftIcon className="w-5 h-5" />
-                    </button>
-                    <h2 className="text-xl font-semibold">发布活动</h2>
-                </div>
+        <div className="flex  flex-col pt-[50px] px-[16px] pb-[40px]">
+            <Navbar
+                left={<ArrowLeftIcon className="w-5 h-5" />}
+                title="发布活动"
+                onClickLeft={handleBack}
+            />
 
-                <div className="bg-white rounded-lg p-4 mb-6">
-                    <div className="flex items-center justify-between mb-4">
-                        <h2 className="text-lg font-medium"></h2>
-                        {form.images.length > 0 && (
-                            <button
-                                className="text-primary text-sm hover:text-dark-primary cursor-pointer"
-                                onClick={handleClearAll}>
-                                清空并重新上传
-                            </button>
-                        )}
-                    </div>
-
-                    <Upload
-                        onChange={handleFileChange}
-                        onRemove={handleFileRemove}
-                        beforeUpload={beforeUpload}
-                        maxCount={18}
-                        maxSize={10}
-                        accept="image/*"
-                        buttonText="添加图片"
-                        className="mb-4"
-                    />
-                </div>
-
-                <div className="bg-white rounded-lg p-4 mb-6">
-                    <h2 className="text-lg font-medium mb-4">活动内容</h2>
-
-                    <div className="mb-4">
-                        <Input
-                            type="text"
-                            placeholder="填写活动标题"
-                            value={form.title}
-                            onChange={(e) => updateForm({ title: e.target.value })}
-                            maxLength={50}
-                            className="w-full p-3 border border-gray-200 rounded-lg focus:outline-none"
-                        />
-                        <div className="text-right text-sm text-gray-500 mt-1">
-                            {form.title.length}/50
-                        </div>
-                    </div>
-
-                    {/* 内容输入 */}
-                    <div className="mb-4">
-                        <Textarea
-                            placeholder="输入活动详细内容，让更多人了解你的活动"
-                            value={form.content}
-                            onChange={(e) => updateForm({ content: e.target.value })}
-                            className="w-full p-3 border border-gray-200 rounded-lg focus:outline-none resize-none"
-                            rows={4}
-                            maxLength={1000}
-                        />
-                        <div className="text-right text-sm text-gray-500 mt-1">
-                            {form.content.length}/1000
-                        </div>
-                    </div>
-
-                    <Tab
-                        tabs={tabs}
-                        onChange={(tab) => setSelectedTab(tab.id)}
-                    />
-                </div>
-
-                {/* 地点选择 */}
-                <div className="bg-white rounded-lg p-4 mb-6">
-                    <h2 className="text-lg font-medium mb-4">活动地点</h2>
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center">
-                            <MapPinIcon className="w-5 h-5 text-theme mr-2" />
-                            <span className="text-gray-700">
-                                {form.location
-                                    ? `${form.location.city} ${form.location.address || ''}`
-                                    : '请选择活动地点'}
-                            </span>
-                        </div>
+            <div className=" rounded-lg  mb-[16px]">
+                <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-lg font-medium"></h2>
+                    {form.images.length > 0 && (
                         <button
-                            className="text-theme hover:text-dark-theme text-sm font-medium"
-                            onClick={handleLocationSelect}>
-                            {form.location ? '更改地点' : '选择地点'}
+                            className="text-primary text-sm hover:text-dark-primary cursor-pointer"
+                            onClick={handleClearAll}>
+                            清空并重新上传
                         </button>
-                    </div>
+                    )}
                 </div>
 
-                {/* 更多设置 */}
-                <div className="bg-white rounded-lg p-4 mb-6">
-                    <div className="flex items-center justify-between mb-4">
-                        <h2 className="text-lg font-medium">活动设置</h2>
-                    </div>
-
-                    <div className="space-y-4">
-                        <div className="flex items-center justify-between">
-                            <span className="text-gray-700">活动类型</span>
-                            <Select
-                                options={[
-                                    { label: '线下活动', value: 'OFFLINE' },
-                                    { label: '线上活动', value: 'ONLINE' },
-                                ]}
-                                onChange={(value) =>
-                                    updateForm({
-                                        type: value as 'ONLINE' | 'OFFLINE',
-                                    })
-                                }
-                                value={form.type}
-                            />
-                        </div>
-
-                        <Switch
-                            label="寻找合作伙伴"
-                            checked={form.needPartner}
-                            onChange={(checked) => updateForm({ needPartner: checked })}
-                            size="medium"
-                        />
-
-                        {form.tags.length > 0 && (
-                            <div>
-                                <span className="text-gray-700 text-sm mb-2 block">已选标签:</span>
-                                <div className="flex flex-wrap gap-2">
-                                    {form.tags.map((tag, index) => (
-                                        <span
-                                            key={index}
-                                            className="px-2 py-1 bg-theme text-white text-sm rounded-full">
-                                            #{tag}
-                                        </span>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
-                    </div>
-                </div>
-
-                {/* 发布按钮 */}
-                <Button
-                    onClick={handlePublish}
-                    disabled={
-                        isPublishing ||
-                        form.images.length === 0 ||
-                        !form.title.trim() ||
-                        !form.content.trim() ||
-                        !form.location
-                    }
-                    className={`w-full py-3 px-6 rounded-lg font-medium transition-colors ${
-                        !isPublishing &&
-                        form.images.length > 0 &&
-                        form.title.trim() &&
-                        form.content.trim() &&
-                        form.location
-                            ? 'bg-theme text-white hover:bg-dark-theme'
-                            : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                    }`}>
-                    {isPublishing ? '发布中...' : '发布活动'}
-                </Button>
-
-                <LocationPicker
-                    visible={showLocationPicker}
-                    onChange={handleLocationChange}
-                    onClose={() => setShowLocationPicker(false)}
+                <Upload
+                    onChange={handleFileChange}
+                    onRemove={handleFileRemove}
+                    beforeUpload={beforeUpload}
+                    maxCount={18}
+                    maxSize={10}
+                    accept="image/*"
+                    buttonText="添加图片"
+                    className="mb-4"
                 />
             </div>
 
-            {/* 右侧预览区域 */}
-            <div className="w-96 bg-white border-l border-gray-200 p-4">
+            <div className=" rounded-lg  mb-[16px]">
+                <h2 className="text-lg font-medium mb-4">活动内容</h2>
+
                 <div className="mb-4">
-                    <Tab
-                        tabs={[
-                            {
-                                id: 'preview',
-                                label: '预览',
-                                content: null,
-                            },
-                        ]}
-                        variant="underline"
+                    <Input
+                        type="text"
+                        placeholder="填写活动标题"
+                        value={form.title}
+                        onChange={(e) => updateForm({ title: e.target.value })}
+                        maxLength={50}
+                        className="w-full p-3 border border-gray-200 rounded-lg focus:outline-none"
                     />
+                    <div className="text-right text-sm text-gray-500 mt-1">
+                        {form.title.length}/50
+                    </div>
                 </div>
 
-                {/* 使用 ActivityCard 组件进行预览 */}
-                <ActivityCard activity={previewActivity} />
+                {/* 内容输入 */}
+                <div className="mb-4">
+                    <Textarea
+                        placeholder="输入活动详细内容，让更多人了解你的活动"
+                        value={form.content}
+                        onChange={(e) => updateForm({ content: e.target.value })}
+                        className="w-full p-3 border border-gray-200 rounded-lg focus:outline-none resize-none"
+                        rows={4}
+                        maxLength={1000}
+                    />
+                    <div className="text-right text-sm text-gray-500 mt-1">
+                        {form.content.length}/1000
+                    </div>
+                </div>
+
+                <Tab
+                    tabs={tabs}
+                    onChange={(tab) => setSelectedTab(tab.id)}
+                />
             </div>
+
+            {/* 地点选择 */}
+            <div className=" rounded-lg p-4 mb-[16px]">
+                <h2 className="text-lg font-medium mb-4">活动地点</h2>
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center">
+                        <MapPinIcon className="w-5 h-5 text-theme mr-2" />
+                        <span className="text-gray-700">
+                            {form.location
+                                ? `${form.location.city} ${form.location.address || ''}`
+                                : '请选择活动地点'}
+                        </span>
+                    </div>
+                    <button
+                        className="text-theme hover:text-dark-theme text-sm font-medium"
+                        onClick={handleLocationSelect}>
+                        {form.location ? '更改地点' : '选择地点'}
+                    </button>
+                </div>
+            </div>
+
+            {/* 更多设置 */}
+            <div className=" rounded-lg p-4 mb-[16px]">
+                <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-lg font-medium">活动设置</h2>
+                </div>
+
+                <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                        <span className="text-gray-700">活动类型</span>
+                        <Select
+                            options={[
+                                { label: '线下活动', value: 'OFFLINE' },
+                                { label: '线上活动', value: 'ONLINE' },
+                            ]}
+                            onChange={(value) =>
+                                updateForm({
+                                    type: value as 'ONLINE' | 'OFFLINE',
+                                })
+                            }
+                            value={form.type}
+                        />
+                    </div>
+
+                    <Switch
+                        label="寻找合作伙伴"
+                        checked={form.needPartner}
+                        onChange={(checked) => updateForm({ needPartner: checked })}
+                        size="medium"
+                    />
+
+                    {form.tags.length > 0 && (
+                        <div>
+                            <span className="text-gray-700 text-sm mb-2 block">已选标签:</span>
+                            <div className="flex flex-wrap gap-2">
+                                {form.tags.map((tag, index) => (
+                                    <span
+                                        key={index}
+                                        className="px-2 py-1 bg-theme text-white text-sm rounded-full">
+                                        #{tag}
+                                    </span>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                </div>
+            </div>
+
+            {/* 发布按钮 */}
+            <Button
+                onClick={handlePublish}
+                disabled={
+                    isPublishing ||
+                    form.images.length === 0 ||
+                    !form.title.trim() ||
+                    !form.content.trim() ||
+                    !form.location
+                }
+                className={`w-full py-3 px-6 rounded-lg font-medium transition-colors ${
+                    !isPublishing &&
+                    form.images.length > 0 &&
+                    form.title.trim() &&
+                    form.content.trim() &&
+                    form.location
+                        ? 'bg-theme text-white '
+                        : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                }`}>
+                {isPublishing ? '发布中...' : '发布活动'}
+            </Button>
+
+            <LocationPicker
+                visible={showLocationPicker}
+                onChange={handleLocationChange}
+                onClose={() => setShowLocationPicker(false)}
+            />
         </div>
     );
 };

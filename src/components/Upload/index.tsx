@@ -228,15 +228,13 @@ const Upload: React.FC<UploadProps> = ({
         return (
             <div className="flex flex-col items-center justify-center py-8">
                 <PhotoIcon className="w-12 h-12 text-gray-400 mb-2" />
-                <p className="text-gray-600 mb-1">
-                    {drag ? '拖拽图片到此处或点击上传' : '点击上传图片'}
-                </p>
+                <p className="text-gray-600 mb-1">点击上传图片</p>
                 <p className="text-sm text-gray-500">
                     支持 {accept} 格式，最大 {maxSize}MB
                 </p>
             </div>
         );
-    }, [accept, maxSize, drag]);
+    }, [accept, maxSize]);
 
     const renderList = useCallback(() => {
         return (

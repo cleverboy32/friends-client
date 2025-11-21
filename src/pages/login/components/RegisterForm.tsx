@@ -2,6 +2,7 @@ import FormRender, { useForm } from 'form-render';
 import type { FRProps } from 'form-render';
 import Button from '@/components/button';
 import useUserStore from '@/store/user';
+import LiquidGlassButton from '@/components/liquid';
 
 interface RegisterFormData {
     name: string;
@@ -85,23 +86,23 @@ export default function RegisterForm({ onSwitchToLogin }: Props) {
                 displayType="row"
                 onFinish={onSubmit}
                 labelWidth={80}
-                className="w-[400px]"
             />
 
-            <Button
-                type="button"
-                className="py-2 rounded font-semibold w-full"
+            <LiquidGlassButton
+                height={40}
+                width={window.innerWidth - 64}
+                borderRadius={20}
+                surfaceType="squircle"
+                glassThickness={0.2}
                 onClick={() => form.submit()}
-                disabled={isLoading}
-            >
-                {isLoading ? '注册中...' : '注册'}
-            </Button>
+                bezelWidth={0.38}>
+                <span className="text-white text-[20px]">{isLoading ? '注册中...' : '注册'}</span>
+            </LiquidGlassButton>
 
             <div className="mt-4 text-center">
                 <button
                     onClick={onSwitchToLogin}
-                    className="text-primary hover:text-primary-dark"
-                >
+                    className="text-primary hover:text-primary-dark">
                     已有账号？立即登录
                 </button>
             </div>

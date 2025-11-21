@@ -7,6 +7,7 @@ import DiscoverPage from './pages/discover';
 import ActivityDetailPage from './pages/ActivityDetail';
 import PostActivity from './pages/PostActivity';
 import PersonPage from './pages/person';
+import SearchPage from './pages/Search ';
 import useUserStore from './store/user';
 
 function App() {
@@ -24,7 +25,7 @@ function App() {
     // 显示加载状态
     if (isLoading && !userInfo) {
         return (
-            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+            <div className="h-screen flex items-center justify-center">
                 <div className="text-center">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
                     <p className="text-gray-600">正在加载...</p>
@@ -36,35 +37,37 @@ function App() {
     return (
         <StrictMode>
             <Router>
-                <div className="min-h-screen bg-gray-50">
-                    <main>
-                        <Routes>
-                            <Route
-                                path="/"
-                                element={<Home />}
-                            />
-                            <Route
-                                path="/login"
-                                element={<Login />}
-                            />
-                            <Route
-                                path="/discover"
-                                element={<DiscoverPage />}
-                            />
-                            <Route
-                                path="/discover/activity/:id"
-                                element={<ActivityDetailPage />}
-                            />
-                            <Route
-                                path="/post-activity"
-                                element={<PostActivity />}
-                            />
-                            <Route
-                                path="/person/:userId"
-                                element={<PersonPage />}
-                            />
-                        </Routes>
-                    </main>
+                <div className="h-screen flex flex-col">
+                    <Routes>
+                        <Route
+                            path="/"
+                            element={<Home />}
+                        />
+                        <Route
+                            path="/login"
+                            element={<Login />}
+                        />
+                        <Route
+                            path="/discover"
+                            element={<DiscoverPage />}
+                        />
+                        <Route
+                            path="/discover/activity/:id"
+                            element={<ActivityDetailPage />}
+                        />
+                        <Route
+                            path="/post-activity"
+                            element={<PostActivity />}
+                        />
+                        <Route
+                            path="/person/:userId"
+                            element={<PersonPage />}
+                        />
+                        <Route
+                            path="/search"
+                            element={<SearchPage />}
+                        />
+                    </Routes>
                 </div>
             </Router>
         </StrictMode>
