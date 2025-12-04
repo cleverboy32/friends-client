@@ -21,7 +21,7 @@ const showErrorMessage = (message: string) => {
 
 // 创建axios实例
 const request: AxiosInstance = axios.create({
-    baseURL: '/api', // 设置baseURL
+    baseURL: 'http://129.211.44.160:3000/api', // 设置baseURL
     timeout: 10000, // 请求超时时间
     headers: {
         'Content-Type': 'application/json',
@@ -32,6 +32,9 @@ const request: AxiosInstance = axios.create({
 // 请求拦截器
 request.interceptors.request.use(
     (config: InternalAxiosRequestConfig) => {
+        const token = localStorage.getItem('X-Token');
+        config.headers.set('Authorization', token || '');
+
         return config;
     },
     (error: Error) => {
@@ -44,12 +47,15 @@ request.interceptors.response.use(
     (response: AxiosResponse<ResponseData>) => {
         const res = response.data;
 
+        const token = response.headers['x-token'];
+        if (token) {
+            localStorage.setItem('X-Token', token);
+        }
+
         if (res.code !== 200) {
             showErrorMessage(res.message || '请求失败');
             return Promise.reject(new Error(res.message || '请求失败'));
         }
-
-        console.log(res.data);
 
         return res.data;
     },

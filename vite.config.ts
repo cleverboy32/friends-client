@@ -5,22 +5,9 @@ import path from 'path';
 
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
-    const env = loadEnv(mode, process.cwd(), '');
     return {
         server: {
             host: '0.0.0.0',
-            proxy: {
-                [env.VITE_APP_BASE_API]: {
-                    // 使用环境变量 VITE_APP_API_URL 作为目标地址
-                    target: env.VITE_APP_API_URL,
-                    // 3. 路径重写（去除代理前缀，转发给后端）
-                    rewrite: (path) => path.replace(new RegExp(`^${env.VITE_APP_BASE_API}`), ''),
-                    // 4. 支持跨域
-                    changeOrigin: true,
-                    // 5. 如果是 HTTPS 目标，需要设置 secure: false
-                    // secure: false,
-                },
-            },
         },
         plugins: [react(), tailwindcss()],
         resolve: {
