@@ -1,7 +1,12 @@
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import useUserStore from '../../store/user';
-import { HomeIcon, PlusIcon, BellIcon, UserIcon } from '@heroicons/react/24/outline';
+import {
+    HomeIcon,
+    PlusIcon,
+    ChatBubbleLeftEllipsisIcon,
+    UserIcon,
+} from '@heroicons/react/24/outline';
 
 interface NavItem {
     key: string;
@@ -32,8 +37,8 @@ const Navbar: React.FC = () => {
         },
         {
             key: 'notifications',
-            label: '通知',
-            icon: <BellIcon className="w-6 h-6" />,
+            label: '消息',
+            icon: <ChatBubbleLeftEllipsisIcon className="w-6 h-6" />,
             path: '/notifications',
             hasNotification: true,
         },

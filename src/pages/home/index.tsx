@@ -15,10 +15,7 @@ const Home: React.FC = () => {
             <section className="banner">
                 <div className="banner-content">
                     <h1>寻找搭子</h1>
-                    <p>
-                        结识志同道合的伙伴，通过「Finish Task
-                        Together」深化友谊并共同实现目标
-                    </p>
+                    <p>结识志同道合的伙伴，通过「Finish Task Together」深化友谊并共同实现目标</p>
                     <div className="flex gap-4">
                         <Button
                             className="join-btn"
@@ -28,14 +25,12 @@ const Home: React.FC = () => {
                                 } else {
                                     navigate('/login');
                                 }
-                            }}
-                        >
+                            }}>
                             即刻加入！
                         </Button>
                         <Button
                             className="discover-btn"
-                            onClick={() => navigate('/discover')}
-                        >
+                            onClick={() => navigate('/discover')}>
                             发现活动
                         </Button>
                     </div>
@@ -64,9 +59,7 @@ const Home: React.FC = () => {
                             />
                         </div>
                         <h3 className="text-2xl font-bold">组局神器</h3>
-                        <p>
-                            随时开局加入身边真实社交，轻松结新朋友，拓展你的社交圈。
-                        </p>
+                        <p>随时开局加入身边真实社交，轻松结新朋友，拓展你的社交圈。</p>
                     </div>
                     <div className="flex-1">
                         <div className="feature-img-placeholder">
@@ -92,7 +85,10 @@ const Home: React.FC = () => {
                     <Button className="contact-btn">联系</Button>
                 </div>
                 <div className="community-img-placeholder">
-                    <img src="/src/assets/ten-friends.jpg" alt="community" />
+                    <img
+                        src="/src/assets/ten-friends.jpg"
+                        alt="community"
+                    />
                 </div>
             </section>
 
@@ -101,7 +97,9 @@ const Home: React.FC = () => {
                 <p className="insta-tip">请连接你的Instagram账号以展示动态。</p>
                 <div className="insta-grid">
                     {Array.from({ length: 6 }).map((_, i) => (
-                        <div className="insta-placeholder" key={i}></div>
+                        <div
+                            className="insta-placeholder"
+                            key={i}></div>
                     ))}
                 </div>
             </section>

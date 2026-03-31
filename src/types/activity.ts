@@ -7,14 +7,27 @@ export interface Activity {
     createdAt: string;
     needPartner: boolean;
     authorId: number;
-    tags: string[];
+    author: {
+        id: number;
+        name: string;
+        avatar: string | null;
+    };
+    tags: {
+        tagId: number;
+        activityId: number;
+        tag: {
+            id: number;
+            name: string;
+            createdAt: string;
+        };
+    }[];
     location?: {
         id: number;
         latitude: number;
         longitude: number;
         address?: string;
         city: string;
-    };
+    } | null;
     locationId?: number;
 }
 

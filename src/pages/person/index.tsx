@@ -34,16 +34,11 @@ const PersonPage: React.FC = () => {
                     title: item.title,
                     content: item.content,
                     time: new Date(item.createdAt).toLocaleString('zh-CN'),
-                    location: item.location?.address || '未知地点',
-                    publisher: '发布者', // API中没有author信息，暂时使用默认值
-                    reward: `${Math.floor(Math.random() * 200) + 50}积分`, // 暂时随机生成积分
-                    participants: Math.floor(Math.random() * 50), // 暂时随机生成参与人数
-                    maxParticipants: Math.floor(Math.random() * 100) + 50, // 暂时随机生成最大参与人数
-                    category: item.tags?.[0] || '其他',
-                    distance: Math.random() * 20, // 暂时随机生成距离
-                    coordinates: item.location
-                        ? [item.location.longitude, item.location.latitude]
-                        : [116.397428, 39.90923],
+                    location: item.location?.address || item.location?.city || '未知地点',
+                    publisher: item.author?.name || '未知用户',
+                    publisherId: item.author?.id,
+                    avatar: item.author?.avatar || undefined,
+                    category: item.tags?.[0]?.tag?.name || '其他',
                     image:
                         item.image?.[0] ||
                         `https://via.placeholder.com/120x80/4ade80/ffffff?text=${item.title.charAt(0)}`,
@@ -67,18 +62,24 @@ const PersonPage: React.FC = () => {
         );
     }, []);
 
-    const renderCard = useCallback((activities: Activity[]) => {
-        return (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-10">
-                {activities.map((activity) => (
-                    <ActivityCard
-                        key={activity.id}
-                        activity={activity}
-                    />
-                ))}
-            </div>
-        );
-    }, []);
+    const renderCard = useCallback(
+        (activities: Activity[]) => {
+            return (
+                <div className="columns-3 md:columns-4 lg:columns-5 gap-6">
+                    {activities.map((activity) => (
+                        <ActivityCard
+                            className="mb-6"
+                            key={activity.id}
+                            activity={activity}
+                            currentUserId={userInfo?.id}
+                            onClick={(id) => (window.location.href = `/activity/${id}`)}
+                        />
+                    ))}
+                </div>
+            );
+        },
+        [userInfo],
+    );
 
     const tabs = [
         {

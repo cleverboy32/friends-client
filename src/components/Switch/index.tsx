@@ -35,8 +35,7 @@ const Switch: React.FC<SwitchProps> = ({
                 disabled={disabled}
                 type="button"
                 role="switch"
-                aria-checked={checked}
-            >
+                aria-checked={checked}>
                 <div className="switch-thumb"></div>
             </button>
         </div>

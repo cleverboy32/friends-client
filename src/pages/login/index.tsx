@@ -18,12 +18,12 @@ export default function Login() {
     return (
         <div className="min-h-screen w-full flex flex-col bg-cover bg-center">
             {/* 顶部导航栏 */}
-            <nav className="w-full flex items-center justify-between px-8 py-4">
+            <nav className="w-full flex items-center justify-between px-8 py-4 bg-white">
                 <div className="flex items-center space-x-1">
                     <img
-                        src="/src/assets/logo.png"
+                        src="/src/assets/dz.png"
                         alt="logo"
-                        className="w-10 h-10"
+                        className="h-10"
                     />
                     <span className="text-3xl font-bold text-primary">搭子</span>
                 </div>

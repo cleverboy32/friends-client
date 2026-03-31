@@ -32,6 +32,10 @@ const request: AxiosInstance = axios.create({
 // 请求拦截器
 request.interceptors.request.use(
     (config: InternalAxiosRequestConfig) => {
+        const token = localStorage.getItem('token');
+        if (token && config.headers) {
+            config.headers.Authorization = token;
+        }
         return config;
     },
     (error: Error) => {
@@ -42,6 +46,12 @@ request.interceptors.request.use(
 // 响应拦截器
 request.interceptors.response.use(
     (response: AxiosResponse<ResponseData>) => {
+        // 保存 token，兼容 Capacitor / 移动端等 Cookie 无法正常使用的场景
+        const token = response.headers['x-token'];
+        if (token) {
+            localStorage.setItem('token', token);
+        }
+
         const res = response.data;
 
         if (res.code !== 200) {

@@ -92,16 +92,14 @@ export default function RegisterForm({ onSwitchToLogin }: Props) {
                 type="button"
                 className="py-2 rounded font-semibold w-full"
                 onClick={() => form.submit()}
-                disabled={isLoading}
-            >
+                disabled={isLoading}>
                 {isLoading ? '注册中...' : '注册'}
             </Button>
 
             <div className="mt-4 text-center">
                 <button
                     onClick={onSwitchToLogin}
-                    className="text-primary hover:text-primary-dark"
-                >
+                    className="text-primary hover:text-primary-dark">
                     已有账号？立即登录
                 </button>
             </div>

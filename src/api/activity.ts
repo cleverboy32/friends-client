@@ -1,4 +1,4 @@
-import { get, post, put, del } from '@/utils/request';
+import { post } from '@/utils/request';
 import type {
     Activity,
     CreateActivityParams,
@@ -17,41 +17,45 @@ export const getActivityList = (params: ActivityQueryParams = {}) => {
         items: Activity[];
         total: number;
         page: number;
-        totalPage: number;
+        pageSize: number;
+        totalPages: number;
     }>('/activity/list', params);
 };
 
 // 获取活动详情
-export const getActivityDetail = (activityId: number) => {
-    return post<Activity>(`/activity/detail`, { id: activityId });
+export const getActivityDetail = (activityId: number | string) => {
+    return post<Activity>(`/activity/detail`, { id: String(activityId) });
 };
 
 // 更新活动信息
-export const updateActivity = (_activityId: number, data: UpdateActivityParams) => {
-    return put<Activity>(`/activity/update`, data);
+export const updateActivity = (activityId: number | string, data: UpdateActivityParams) => {
+    const { id, ...restData } = data;
+    return post<Activity>(`/activity/update`, { id: String(activityId), ...restData });
 };
 
 // 删除活动
-export const deleteActivity = (activityId: number) => {
-    return del(`/activity/${activityId}`);
+export const deleteActivity = (activityId: number | string) => {
+    return post<null>(`/activity/delete`, { id: String(activityId) });
 };
 
 // 获取我创建的活动
 export const getMyCreatedActivities = (params: ActivityQueryParams = {}) => {
-    return get<{
-        list: Activity[];
+    return post<{
+        items: Activity[];
         total: number;
         page: number;
         pageSize: number;
-    }>('/activity/created', params);
+        totalPages: number;
+    }>('/activity/list', { ...params, authorId: localStorage.getItem('userId') }); // Fallback if server doesn't have specific route
 };
 
-// 获取我参加的活动
+// 获取我参加的活动 (目前 server 未实现专门的接口，留存或等后续实现)
 export const getMyJoinedActivities = (params: ActivityQueryParams = {}) => {
-    return get<{
-        list: Activity[];
+    return post<{
+        items: Activity[];
         total: number;
         page: number;
         pageSize: number;
-    }>('/activity/joined', params);
+        totalPages: number;
+    }>('/activity/list', params); // 需要 server 支持查已加入
 };

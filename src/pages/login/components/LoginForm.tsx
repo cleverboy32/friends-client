@@ -51,8 +51,9 @@ export default function LoginForm({ onSwitchToRegister }: Props) {
     const onSubmit = async (formData: LoginFormData) => {
         try {
             await login(formData);
-            // 登录成功，跳转到首页
-            navigate('/');
+            // 登录成功，跳转到发现页面
+            console.log(33);
+            navigate('/discover');
         } catch (error) {
             // 错误已经被统一处理
             console.error('登录失败:', error);
@@ -74,16 +75,14 @@ export default function LoginForm({ onSwitchToRegister }: Props) {
                 type="button"
                 className="py-2 rounded font-semibold w-full"
                 onClick={() => form.submit()}
-                disabled={isLoading}
-            >
+                disabled={isLoading}>
                 {isLoading ? '登录中...' : '登录'}
             </Button>
 
             <div className="mt-4 text-center">
                 <button
                     onClick={onSwitchToRegister}
-                    className="text-primary hover:text-primary-dark"
-                >
+                    className="text-primary hover:text-primary-dark">
                     还没有账号？立即注册
                 </button>
             </div>

@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useImperativeHandle, useCallback, memo } from
 import AMapLoader from '@amap/amap-jsapi-loader';
 import type { AutoComplete } from '@/types/map';
 
-interface Marker {
+export interface Marker {
     id: string;
     position: [number, number]; // [lng, lat]
     title: string;
@@ -286,10 +286,10 @@ const Map = memo(
 
             useEffect(() => {
                 window._AMapSecurityConfig = {
-                    securityJsCode: '3a9b17994db048001d57dc1253d34472',
+                    securityJsCode: '3c2f9662fa4d401b7d05beeba9c8bd81',
                 };
                 AMapLoader.load({
-                    key: 'fe7a1e66992f3e13ce9ae239887fcef5',
+                    key: 'd593dbd68c6bc68ce3d98a560adb0873',
                     version: '2.0',
                     plugins: [
                         'AMap.Marker',

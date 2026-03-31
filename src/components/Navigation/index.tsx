@@ -20,9 +20,7 @@ const Navigation: React.FC = () => {
                         <div className="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center text-white font-bold text-lg">
                             Z
                         </div>
-                        <span className="text-lg font-semibold text-gray-800">
-                            活动平台
-                        </span>
+                        <span className="text-lg font-semibold text-gray-800">活动平台</span>
                     </div>
 
                     {/* 导航链接 */}
@@ -35,12 +33,9 @@ const Navigation: React.FC = () => {
                                     location.pathname === item.path
                                         ? 'bg-green-100 text-green-700'
                                         : 'text-gray-600 hover:text-green-600 hover:bg-green-50'
-                                }`}
-                            >
+                                }`}>
                                 <span className="text-lg">{item.icon}</span>
-                                <span className="font-medium">
-                                    {item.label}
-                                </span>
+                                <span className="font-medium">{item.label}</span>
                             </Link>
                         ))}
                     </div>
@@ -52,8 +47,7 @@ const Navigation: React.FC = () => {
                                 className="w-6 h-6 text-gray-600"
                                 fill="none"
                                 stroke="currentColor"
-                                viewBox="0 0 24 24"
-                            >
+                                viewBox="0 0 24 24">
                                 <path
                                     strokeLinecap="round"
                                     strokeLinejoin="round"

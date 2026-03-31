@@ -22,7 +22,10 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
     ) => {
         const id = useId();
         return (
-            <Field className={layout === 'vertical' ? 'flex flex-col gap-1' : 'flex items-center'}>
+            <Field
+                className={
+                    layout === 'vertical' ? 'flex flex-col gap-1' : 'flex items-center flex-1'
+                }>
                 {label && (
                     <label
                         htmlFor={id}

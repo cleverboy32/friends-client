@@ -86,10 +86,10 @@ const PostActivity: React.FC = () => {
     // 发布内容
     const handlePublish = async () => {
         // 表单验证
-        if (form.images.length === 0) {
-            alert('请至少上传一张图片');
-            return;
-        }
+        // if (form.images.length === 0) {
+        //     alert('请至少上传一张图片');
+        //     return;
+        // }
 
         if (!form.title.trim()) {
             alert('请填写标题');
@@ -170,19 +170,13 @@ const PostActivity: React.FC = () => {
             location: form.location
                 ? `${form.location.city} ${form.location.address || ''}`
                 : '未选择地点',
-            publisher: userInfo?.name || '',
+            publisher: userInfo?.name || '当前用户',
+            publisherId: userInfo?.id,
             avatar: userInfo?.avatar || '',
-            reward: form.needPartner
-                ? '寻找合作伙伴'
-                : `${form.type === 'ONLINE' ? '线上' : '线下'}活动`,
-            participants: 0,
-            maxParticipants: 10,
             category: form.tags.length > 0 ? form.tags[0] : '其他',
-            distance: 0,
-            coordinates: [0, 0] as [number, number],
             image: form.images.length > 0 ? form.images[0].url || form.images[0].name : '',
         }),
-        [form],
+        [form, userInfo],
     );
 
     const activityTopics = [
@@ -409,7 +403,11 @@ const PostActivity: React.FC = () => {
                 </div>
 
                 {/* 使用 ActivityCard 组件进行预览 */}
-                <ActivityCard activity={previewActivity} />
+                <ActivityCard
+                    className="w-[280px]"
+                    activity={previewActivity}
+                    currentUserId={userInfo?.id}
+                />
             </div>
         </div>
     );

@@ -7,6 +7,16 @@ import path from 'path';
 export default defineConfig({
     server: {
         host: '0.0.0.0',
+        proxy: {
+            '/api': {
+                target: 'https://www.meetu.online',
+                changeOrigin: true,
+            },
+            '/ws': {
+                target: 'wss://www.meetu.online',
+                ws: true,
+            },
+        },
     },
     plugins: [react(), tailwindcss()],
     resolve: {

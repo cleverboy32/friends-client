@@ -1,97 +1,125 @@
 import React from 'react';
-import { UserGroupIcon } from '@heroicons/react/24/outline';
-import { ClockIcon, MapPinIcon } from '@heroicons/react/24/solid';
+import { ChatBubbleLeftRightIcon } from '@heroicons/react/24/outline';
 
 interface Activity {
     id: string;
     title: string;
     content: string;
     time: string;
-    location: string;
+    location:
+        | string
+        | {
+              address?: string;
+              city?: string;
+              longitude?: number;
+              latitude?: number;
+          };
     publisher: string;
-    reward: string;
-    participants: number;
-    maxParticipants: number;
-    category: string;
-    distance: number;
-    coordinates: [number, number];
     image: string;
     avatar?: string;
-    jionPeople?: number;
+    category?: string;
+    publisherId?: number;
 }
 
 interface ActivityCardProps {
     activity: Activity;
     onClick?: (activityId: string) => void;
+    onChatClick?: (activity: Activity) => void;
     className?: string;
+    currentUserId?: number;
 }
 
-const ActivityCard: React.FC<ActivityCardProps> = ({ activity, onClick, className = '' }) => {
+const ActivityCard: React.FC<ActivityCardProps> = ({
+    activity,
+    onClick,
+    onChatClick,
+    className = '',
+    currentUserId,
+}) => {
     const handleClick = () => {
         if (onClick) {
             onClick(activity.id);
         }
     };
 
+    const handleChatClick = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (onChatClick) {
+            onChatClick(activity);
+        }
+    };
+
     return (
         <div
             onClick={handleClick}
-            className={`relative cursor-pointer w-[250px] overflow-hidden ${className}`}>
-            <div
-                className={`relative bg-white rounded-lg border border-light-bg-theme/60 ${
-                    activity.image ? 'bg-center bg-no-repeat bg-cover' : ''
-                }`}
-                style={activity.image ? { backgroundImage: `url(${activity.image})` } : undefined}>
-                <div className=" flex items-center justify-center min-h-[200px] ">
-                    {!activity.image && (
-                        <div className="text-[18px] ">
-                            <span className="bg-clip-text text-transparent bg-[linear-gradient(90deg,#FF4D4F,#FAAD14,#52C41A,#13C2C2,#1677FF,#722ED1,#EB2F96)]">
-                                {activity.title}
-                            </span>
-                            <p className="text-sm text-gray-500 mt-[10px]">{activity.content}</p>
-                        </div>
-                    )}
-                </div>
-
-                <div className="space-y-2 text-sm text-gray-200 p-[12px] bg-black/15">
-                    <div className="bg-primary text-white text-xs px-2 py-1 rounded-full font-medium inline-block">
-                        {activity.reward}
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <ClockIcon className="w-[20px] h-[20px] text-primary" />
-                        <span>{activity.time}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <MapPinIcon className="w-[20px] h-[20px] text-primary" />
-                        <span>{activity.location}</span>
+            className={`relative break-inside-avoid cursor-pointer box-border overflow-hidden rounded-lg border border-[#e0e7d4]/60 ${className}`}>
+            {/* Image or Fallback Placeholder */}
+            {activity.image ? (
+                <img
+                    src={activity.image}
+                    alt={activity.title}
+                    className="w-full h-auto object-cover" // h-auto allows variable height
+                />
+            ) : (
+                <div
+                    className="flex items-center justify-center p-4"
+                    style={{ minHeight: '120px' }}>
+                    <div className="text-center">
+                        <h3 className="bg-clip-text text-transparent bg-[linear-gradient(90deg,#FF4D4F,#FAAD14,#52C41A,#13C2C2,#1677FF,#722ED1,#EB2F96)] font-bold text-lg">
+                            {activity.title}
+                        </h3>
+                        <p className="text-sm text-gray-500 mt-2 line-clamp-2">
+                            {activity.content}
+                        </p>
                     </div>
                 </div>
-            </div>
+            )}
 
-            <div className="p-[12px] ">
-                <h3 className="font-semibold text-gray-800 mb-2 line-clamp-1">{activity.title}</h3>
+            {/* Content Info */}
+            <div className="p-3 bg-white">
+                <h3 className="font-semibold text-gray-800 mb-0.5 line-clamp-1">
+                    {activity.title}
+                </h3>
+                <p className="text-xs text-gray-500 mb-2 truncate">
+                    {typeof activity.location === 'string'
+                        ? activity.location
+                        : activity.location?.address || activity.location?.city || '未知地点'}
+                </p>
+
+                {/* Bottom Bar: Publisher & Actions */}
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                        <img
-                            src={activity.avatar}
-                            alt={activity.publisher}
-                            className="w-[24px] h-[24px] rounded-full object-cover"
-                        />
-                        <span className="text-sm font-medium text-gray-700">
+                        {activity.avatar ? (
+                            <img
+                                src={activity.avatar}
+                                alt={activity.publisher}
+                                className="w-6 h-6 rounded-full object-cover"
+                            />
+                        ) : (
+                            <div className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-[10px] text-gray-500">
+                                {activity.publisher.charAt(0)}
+                            </div>
+                        )}
+                        <span className="text-sm font-medium text-gray-700 truncate max-w-[120px]">
                             {activity.publisher}
                         </span>
                     </div>
 
-                    <div className="flex items-center gap-2 text-gray-500">
-                        <UserGroupIcon className="w-[18px] h-[18px] " />
-                        <span className="text-sm font-medium ">{activity.jionPeople ?? 0}</span>
+                    <div className="flex items-center gap-2">
+                        {currentUserId !== activity.publisherId && (
+                            <button
+                                onClick={handleChatClick}
+                                className="p-1 hover:bg-gray-100 rounded-full transition-colors">
+                                <ChatBubbleLeftRightIcon className="w-5 h-5 text-gray-500" />
+                            </button>
+                        )}
                     </div>
                 </div>
-                {/* <p className="text-sm text-gray-600 mb-3 line-clamp-2">{activity.content}</p> */}
             </div>
         </div>
     );
 };
 
 export default ActivityCard;
+export { default as ActivityCardSkeleton } from './ActivityCardSkeleton';
 export type { Activity, ActivityCardProps };

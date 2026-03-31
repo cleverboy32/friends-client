@@ -1,324 +1,185 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import Map from '../../components/Map';
+import { getActivityDetail } from '@/api/activity';
+import type { Activity } from '@/types/activity';
+import Navbar from '@/components/navbar';
+import {
+    ArrowLeftIcon,
+    MapPinIcon,
+    ClockIcon,
+    UsersIcon,
+    ChatBubbleLeftRightIcon,
+} from '@heroicons/react/24/outline';
 
-interface ActivityDetail {
-    id: string;
-    title: string;
-    content: string;
-    description: string;
-    time: string;
-    location: string;
-    publisher: string;
-    reward: string;
-    participants: number;
-    maxParticipants: number;
-    category: string;
-    distance: number;
-    coordinates: [number, number];
-    image: string;
-    requirements: string[];
-    tags: string[];
-}
+import useChatStore from '@/store/chat';
+import useUserStore from '@/store/user';
 
 const ActivityDetailPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
+    const [activity, setActivity] = useState<Activity | null>(null);
+    const [loading, setLoading] = useState(true);
+    const { addOrUpdateChatUser } = useChatStore();
+    const { userInfo } = useUserStore();
 
-    // 模拟活动详情数据
-    const activityDetail: ActivityDetail = {
-        id: id || '1',
-        title: '林绿环保主题活动',
-        content: '绿色环保主题活动，一起为地球贡献力量',
-        description:
-            '这是一个关于环保的主题活动，我们将组织参与者进行垃圾分类、植树造林、环保宣传等活动。通过实际行动来保护我们的环境，让地球变得更加美好。活动包括：1. 垃圾分类知识讲座 2. 社区清洁行动 3. 植树造林活动 4. 环保宣传推广',
-        time: '2024-01-15 14:00',
-        location: '朝阳公园',
-        publisher: '环保协会',
-        reward: '78积分',
-        participants: 78,
-        maxParticipants: 100,
-        category: '环保',
-        distance: 1.2,
-        coordinates: [116.397428, 39.90923],
-        image: 'https://via.placeholder.com/400x250/4ade80/ffffff?text=林绿环保活动',
-        requirements: [
-            '年龄18岁以上',
-            '身体健康',
-            '有环保意识',
-            '能参与户外活动',
-        ],
-        tags: ['环保', '户外', '公益', '教育'],
+    useEffect(() => {
+        if (!id) {
+            console.error('Activity ID is missing');
+            navigate('/discover');
+            return;
+        }
+        fetchActivityDetail(id);
+    }, [id, navigate]);
+
+    const handleGoToChat = () => {
+        if (activity?.author && userInfo) {
+            addOrUpdateChatUser(
+                {
+                    id: activity.author.id,
+                    name: activity.author.name,
+                    avatar: activity.author.avatar,
+                },
+                userInfo.id,
+            );
+            navigate(`/notifications`);
+        }
     };
 
-    const handleJoinActivity = () => {
-        // 这里可以添加参加活动的逻辑
-        console.log('参加活动:', activityDetail.id);
+    const fetchActivityDetail = async (activityId: string) => {
+        try {
+            setLoading(true);
+            const data = await getActivityDetail(activityId);
+            setActivity(data);
+        } catch (error) {
+            console.error('Failed to fetch activity details:', error);
+        } finally {
+            setLoading(false);
+        }
     };
 
-    const handleBack = () => {
-        navigate(-1);
-    };
+    if (loading) {
+        return <div className="flex items-center justify-center h-screen">Loading...</div>;
+    }
+
+    if (!activity) {
+        return <div className="flex items-center justify-center h-screen">Activity not found.</div>;
+    }
 
     return (
-        <div className="min-h-screen bg-gray-50">
-            {/* 头部 */}
-            <div className="bg-white shadow-sm">
-                <div className="max-w-4xl mx-auto px-4 py-4">
-                    <div className="flex items-center gap-4">
-                        <button
-                            onClick={handleBack}
-                            className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
-                        >
-                            <svg
-                                className="w-6 h-6"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                            >
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M15 19l-7-7 7-7"
-                                />
-                            </svg>
-                        </button>
-                        <h1 className="text-xl font-bold text-gray-800">
-                            活动详情
-                        </h1>
-                    </div>
-                </div>
-            </div>
-
-            <div className="max-w-4xl mx-auto px-4 py-6">
-                {/* 活动图片 */}
-                <div className="bg-white rounded-lg shadow-sm overflow-hidden mb-6">
-                    <div
-                        className="w-full h-64 bg-cover bg-center"
-                        style={{
-                            backgroundImage: `url(${activityDetail.image})`,
-                        }}
-                    />
-                </div>
-
-                {/* 活动基本信息 */}
-                <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-                    <div className="flex justify-between items-start mb-4">
-                        <div>
-                            <h2 className="text-2xl font-bold text-gray-800 mb-2">
-                                {activityDetail.title}
-                            </h2>
-                            <div className="flex items-center gap-4 text-sm text-gray-600">
-                                <span className="bg-green-100 text-green-700 px-2 py-1 rounded-full">
-                                    {activityDetail.category}
-                                </span>
-                                <span className="bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full">
-                                    {activityDetail.reward}
-                                </span>
+        <div className="flex h-screen bg-gray-100">
+            <Navbar />
+            <div className="flex-1 overflow-y-auto">
+                <div className="p-4 md:p-8 max-w-6xl mx-auto">
+                    <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
+                        <div className="flex flex-col md:flex-row">
+                            {/* Left Column: Image Area */}
+                            <div className="md:w-1/2 p-4 flex justify-center items-center">
+                                {activity.image && activity.image.length > 0 ? (
+                                    <img
+                                        src={activity.image[0]}
+                                        alt={activity.title}
+                                        className="w-full h-auto max-h-[70vh] object-contain rounded-lg"
+                                    />
+                                ) : (
+                                    <div className="flex items-center justify-center w-full h-full rounded-lg border min-h-[150px] p-4 bg-gray-50">
+                                        <div className="text-center">
+                                            <h2 className="bg-clip-text text-transparent bg-[linear-gradient(90deg,#FF4D4F,#FAAD14,#52C41A,#13C2C2,#1677FF,#722ED1,#EB2F96)] font-bold text-xl">
+                                                {activity.title}
+                                            </h2>
+                                            <p className="text-md text-gray-500 mt-2 line-clamp-3">
+                                                {activity.content}
+                                            </p>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
-                        </div>
-                        <div className="text-right">
-                            <div className="text-2xl font-bold text-green-600">
-                                {activityDetail.participants}/
-                                {activityDetail.maxParticipants}
-                            </div>
-                            <div className="text-sm text-gray-500">
-                                参与人数
-                            </div>
-                        </div>
-                    </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                        <div className="flex items-center gap-3">
-                            <svg
-                                className="w-5 h-5 text-gray-400"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                            >
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                                />
-                            </svg>
-                            <div>
-                                <div className="text-sm text-gray-500">
-                                    活动时间
-                                </div>
-                                <div className="font-medium">
-                                    {activityDetail.time}
-                                </div>
-                            </div>
-                        </div>
-                        <div className="flex items-center gap-3">
-                            <svg
-                                className="w-5 h-5 text-gray-400"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                            >
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                                />
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                                />
-                            </svg>
-                            <div>
-                                <div className="text-sm text-gray-500">
-                                    活动地点
-                                </div>
-                                <div className="font-medium">
-                                    {activityDetail.location}
-                                </div>
-                            </div>
-                        </div>
-                        <div className="flex items-center gap-3">
-                            <svg
-                                className="w-5 h-5 text-gray-400"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                            >
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                                />
-                            </svg>
-                            <div>
-                                <div className="text-sm text-gray-500">
-                                    发布者
-                                </div>
-                                <div className="font-medium">
-                                    {activityDetail.publisher}
-                                </div>
-                            </div>
-                        </div>
-                        <div className="flex items-center gap-3">
-                            <svg
-                                className="w-5 h-5 text-gray-400"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                            >
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
-                                />
-                            </svg>
-                            <div>
-                                <div className="text-sm text-gray-500">
-                                    距离
-                                </div>
-                                <div className="font-medium">
-                                    {activityDetail.distance}km
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                            {/* Right Column: Content Area */}
+                            <div className="md:w-1/2 p-4 md:p-6 flex flex-col justify-center">
+                                <h2 className="text-2xl font-bold text-gray-800 mb-3">
+                                    {activity.title}
+                                </h2>
+                                <p className="text-gray-600 leading-relaxed whitespace-pre-wrap mb-4">
+                                    {activity.content}
+                                </p>
 
-                    {/* 活动标签 */}
-                    <div className="flex flex-wrap gap-2 mb-6">
-                        {activityDetail.tags.map((tag, index) => (
-                            <span
-                                key={index}
-                                className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm"
-                            >
-                                {tag}
-                            </span>
-                        ))}
-                    </div>
-
-                    {/* 参加按钮 */}
-                    <button
-                        onClick={handleJoinActivity}
-                        disabled={
-                            activityDetail.participants >=
-                            activityDetail.maxParticipants
-                        }
-                        className={`w-full py-3 px-6 rounded-lg font-medium transition-colors ${
-                            activityDetail.participants >=
-                            activityDetail.maxParticipants
-                                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                                : 'bg-green-500 text-white hover:bg-green-600'
-                        }`}
-                    >
-                        {activityDetail.participants >=
-                        activityDetail.maxParticipants
-                            ? '活动已满员'
-                            : '立即参加'}
-                    </button>
-                </div>
-
-                {/* 活动详情 */}
-                <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-                    <h3 className="text-lg font-semibold text-gray-800 mb-4">
-                        活动详情
-                    </h3>
-                    <p className="text-gray-700 leading-relaxed mb-6">
-                        {activityDetail.description}
-                    </p>
-
-                    <h4 className="font-medium text-gray-800 mb-3">参与要求</h4>
-                    <ul className="space-y-2 mb-6">
-                        {activityDetail.requirements.map(
-                            (requirement, index) => (
-                                <li
-                                    key={index}
-                                    className="flex items-center gap-2 text-gray-700"
-                                >
-                                    <svg
-                                        className="w-4 h-4 text-green-500"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        viewBox="0 0 24 24"
-                                    >
-                                        <path
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                            strokeWidth={2}
-                                            d="M5 13l4 4L19 7"
+                                <div className="flex items-center justify-between mb-4 pb-4 border-b border-gray-100">
+                                    <div className="flex items-center gap-3">
+                                        <img
+                                            src={
+                                                activity.author?.avatar ||
+                                                'https://via.placeholder.com/40'
+                                            }
+                                            alt={activity.author?.name}
+                                            className="w-10 h-10 rounded-full object-cover"
                                         />
-                                    </svg>
-                                    {requirement}
-                                </li>
-                            ),
-                        )}
-                    </ul>
-                </div>
+                                        <div>
+                                            <p className="font-medium text-gray-800">
+                                                {activity.author?.name || '未知用户'}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    {userInfo?.id !== activity.author?.id && (
+                                        <button
+                                            onClick={handleGoToChat}
+                                            className="p-2 rounded-full hover:bg-gray-100">
+                                            <ChatBubbleLeftRightIcon className="w-6 h-6 text-gray-500" />
+                                        </button>
+                                    )}{' '}
+                                </div>
 
-                {/* 地图 */}
-                <div className="bg-white rounded-lg shadow-sm p-6">
-                    <h3 className="text-lg font-semibold text-gray-800 mb-4">
-                        活动地点
-                    </h3>
-                    <Map
-                        width="100%"
-                        height="300px"
-                        center={activityDetail.coordinates}
-                        zoom={15}
-                        markers={[
-                            {
-                                id: activityDetail.id,
-                                position: activityDetail.coordinates,
-                                title: activityDetail.title,
-                                content: activityDetail.location,
-                            },
-                        ]}
-                    />
+                                <div className="bg-gray-50 rounded-lg p-3 mb-4">
+                                    {activity.location && (
+                                        <div className="flex items-start gap-3 mb-2">
+                                            <MapPinIcon className="w-5 h-5 text-primary flex-shrink-0 mt-1" />
+                                            <div>
+                                                <p className="text-xs text-gray-500">活动地点</p>
+                                                <p className="text-sm text-gray-800">
+                                                    {activity.location.address ||
+                                                        activity.location.city}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    )}
+                                    <div className="flex items-start gap-3 mb-2">
+                                        <ClockIcon className="w-5 h-5 text-primary flex-shrink-0 mt-1" />
+                                        <div>
+                                            <p className="text-xs text-gray-500">发布时间</p>
+                                            <p className="text-sm text-gray-800">
+                                                {new Date(activity.createdAt).toLocaleString(
+                                                    'zh-CN',
+                                                )}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    {activity.needPartner && (
+                                        <div className="flex items-start gap-3">
+                                            <UsersIcon className="w-5 h-5 text-primary flex-shrink-0 mt-1" />
+                                            <div>
+                                                <p className="text-xs text-gray-500">需要伙伴</p>
+                                                <p className="text-sm text-gray-800">是</p>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+
+                                {activity.tags && activity.tags.length > 0 && (
+                                    <div className="mb-4">
+                                        <h4 className="text-xs text-gray-500 mb-2">标签</h4>
+                                        <div className="flex flex-wrap gap-2">
+                                            {activity.tags.map((tagObj, index) => (
+                                                <span
+                                                    key={index}
+                                                    className="px-3 py-1 rounded-full bg-gray-100 text-xs text-gray-700">
+                                                    {tagObj.tag.name}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

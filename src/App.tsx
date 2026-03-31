@@ -1,5 +1,5 @@
 import './App.css';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Routes, Route, useLocation } from 'react-router-dom';
 import { useEffect, StrictMode } from 'react';
 import Home from './pages/home';
 import Login from './pages/login';
@@ -7,66 +7,66 @@ import DiscoverPage from './pages/discover';
 import ActivityDetailPage from './pages/ActivityDetail';
 import PostActivity from './pages/PostActivity';
 import PersonPage from './pages/person';
+import NotificationsPage from './pages/Notifications';
+import Header from './components/Header';
 import useUserStore from './store/user';
+import { connectWebSocket } from './utils/websocket';
 
 function App() {
-    const { getUserInfo, userInfo, isLoading } = useUserStore();
-    useEffect(() => {
-        if (location.pathname === '/login' || location.pathname === '/register') {
-            return;
-        }
-        getUserInfo().catch(() => {
-            // 如果获取失败，说明用户未登录或token已过期，忽略错误
-            console.log('获取用户信息失败，用户未登录');
-        });
-    }, []);
+    const location = useLocation();
+    const showHeader = location.pathname !== '/login';
+    const { userInfo, getUserInfo } = useUserStore();
 
-    // 显示加载状态
-    if (isLoading && !userInfo) {
-        return (
-            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-                <div className="text-center">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-                    <p className="text-gray-600">正在加载...</p>
-                </div>
-            </div>
-        );
-    }
+    useEffect(() => {
+        if (location.pathname !== '/login') {
+            getUserInfo();
+        }
+    }, [getUserInfo, location.pathname]);
+
+    useEffect(() => {
+        if (userInfo && userInfo.id) {
+            console.log('User logged in, connecting WebSocket...');
+            connectWebSocket();
+        }
+    }, [userInfo]);
 
     return (
         <StrictMode>
-            <Router>
-                <div className="min-h-screen bg-gray-50">
-                    <main>
-                        <Routes>
-                            <Route
-                                path="/"
-                                element={<Home />}
-                            />
-                            <Route
-                                path="/login"
-                                element={<Login />}
-                            />
-                            <Route
-                                path="/discover"
-                                element={<DiscoverPage />}
-                            />
-                            <Route
-                                path="/discover/activity/:id"
-                                element={<ActivityDetailPage />}
-                            />
-                            <Route
-                                path="/post-activity"
-                                element={<PostActivity />}
-                            />
-                            <Route
-                                path="/person/:userId"
-                                element={<PersonPage />}
-                            />
-                        </Routes>
-                    </main>
-                </div>
-            </Router>
+            <div className="min-h-screen bg-gray-50">
+                {showHeader && <Header />}
+                <main>
+                    <Routes>
+                        <Route
+                            path="/"
+                            element={<Home />}
+                        />
+                        <Route
+                            path="/login"
+                            element={<Login />}
+                        />
+                        <Route
+                            path="/discover"
+                            element={<DiscoverPage />}
+                        />
+                        <Route
+                            path="/activity/:id"
+                            element={<ActivityDetailPage />}
+                        />
+                        <Route
+                            path="/post-activity"
+                            element={<PostActivity />}
+                        />
+                        <Route
+                            path="/person/:userId"
+                            element={<PersonPage />}
+                        />
+                        <Route
+                            path="/notifications"
+                            element={<NotificationsPage />}
+                        />
+                    </Routes>
+                </main>
+            </div>
         </StrictMode>
     );
 }

@@ -53,7 +53,7 @@ const useUserStore = create<UserState>((set, get) => ({
             set({ userInfo: data });
         } catch (error) {
             // 错误已经被 request.ts 处理
-            throw error;
+            return Promise.reject(error);
         } finally {
             set({ isLoading: false });
         }
@@ -66,7 +66,7 @@ const useUserStore = create<UserState>((set, get) => ({
             const data = await registerApi(params);
             set({ userInfo: data });
         } catch (error) {
-            throw error;
+            return Promise.reject(error);
         } finally {
             set({ isLoading: false });
         }
@@ -79,7 +79,7 @@ const useUserStore = create<UserState>((set, get) => ({
             await logoutApi();
             get().clearUserInfo();
         } catch (error) {
-            throw error;
+            return Promise.reject(error);
         } finally {
             set({ isLoading: false });
         }
@@ -87,6 +87,7 @@ const useUserStore = create<UserState>((set, get) => ({
 
     // 清除用户信息
     clearUserInfo: () => {
+        localStorage.removeItem('token');
         set({ userInfo: null });
     },
 }));
