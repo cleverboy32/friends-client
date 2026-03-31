@@ -28,7 +28,6 @@ interface ActivityForm {
 
 const PostActivity: React.FC = () => {
     const navigate = useNavigate();
-    const [_selectedTab, setSelectedTab] = useState('topic');
     const [isPublishing, setIsPublishing] = useState(false);
     const { userInfo } = useUserStore();
 
@@ -128,9 +127,12 @@ const PostActivity: React.FC = () => {
                 // 跳转到活动详情页或者首页
                 navigate('/discover');
             }
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error('发布活动失败:', error);
-            const errorMessage = error?.response?.data?.message || '发布失败，请稍后重试';
+            let errorMessage = '发布失败，请稍后重试';
+            if (error && typeof error === 'object' && 'response' in error && error.response && typeof error.response === 'object' && 'data' in error.response && error.response.data && typeof error.response.data === 'object' && 'message' in error.response.data) {
+                errorMessage = (error.response.data as { message: string }).message;
+            }
             alert(errorMessage);
         } finally {
             setIsPublishing(false);

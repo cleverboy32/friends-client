@@ -35,7 +35,7 @@ interface MapProps {
 }
 
 export interface MapRef {
-    getMap: () => any | null;
+    getMap: () => AMap.Map | null;
     setCenter: (center: [number, number]) => void;
     addMarker: (marker: Marker) => void;
     clearMarkers: () => void;
@@ -44,23 +44,7 @@ export interface MapRef {
 const DEFAULT_CENTER: [number, number] = [116.397428, 39.90923]; // 北京天安门
 const DEFAULT_ZOOM = 11;
 
-// 内置地图样式
-export const MAP_STYLES = {
-    NORMAL: 'amap://styles/normal', // 标准样式
-    DARK: 'amap://styles/dark', // 深色样式
-    LIGHT: 'amap://styles/light', // 浅色样式
-    WHITESMOKE: 'amap://styles/whitesmoke', // 白烟样式
-    FRESH: 'amap://styles/fresh', // 清新样式
-    GREY: 'amap://styles/grey', // 灰色样式
-    GRAFFITI: 'amap://styles/graffiti', // 涂鸦样式
-    MACARON: 'amap://styles/macaron', // 马卡龙样式
-    BLUEBERRY: 'amap://styles/blueberry', // 蓝莓样式
-    MIDNIGHT: 'amap://styles/midnight', // 午夜样式
-    PINK: 'amap://styles/pink', // 粉色样式
-    DAWN: 'amap://styles/dawn', // 黎明样式
-    SUNSET: 'amap://styles/sunset', // 日落样式
-    WARM: 'amap://styles/warm', // 温暖样式
-};
+
 
 const defaultMapConfig = {
     features: ['bg', 'road', 'building', 'point'],
@@ -95,18 +79,16 @@ const Map = memo(
             ref,
         ) => {
             const mapRef = useRef<HTMLDivElement>(null);
-            const mapInstance = useRef<any>(null);
-            const markersRef = useRef<any[]>([]);
+            const mapInstance = useRef<AMap.Map | null>(null);
+            const markersRef = useRef<AMap.Marker[]>([]);
 
             // 使用 useCallback 包装 handleAddMark 函数，避免每次渲染都创建新函数
             const handleAddMark = useCallback(
-                (marker: Marker) => {
+                (marker: Marker, AMap: typeof window.AMap) => {
                     if (!mapInstance.current) return;
-                    const AMap = (window as any).AMap;
-                    if (!AMap) return;
 
                     const iconSize = marker.iconSize || [25, 34];
-                    let markerConfig: any = {
+                    const markerConfig: AMap.MarkerOptions = {
                         position: marker.position,
                         title: marker.title,
                     };
@@ -159,9 +141,9 @@ const Map = memo(
                     },
                     addMarker: (marker: Marker) => {
                         if (!mapInstance.current) return;
-                        const AMap = (window as any).AMap;
+                        const AMap: typeof window.AMap = window.AMap;
                         if (!AMap) return;
-                        handleAddMark(marker);
+                        handleAddMark(marker, AMap);
                     },
                     clearMarkers: () => {
                         markersRef.current.forEach((m) => m.setMap(null));
@@ -171,118 +153,8 @@ const Map = memo(
                 [handleAddMark],
             );
 
-            const addControlBar = () => {
-                if (!controlBar) return;
-                const AMap = (window as any).AMap;
-                if (!AMap) return;
 
-                const controlBarInstance = new AMap.ControlBar({
-                    position: {
-                        right: '10px',
-                        top: '10px',
-                    },
-                });
-                controlBarInstance.addTo(mapInstance.current);
-            };
 
-            const addToolBar = () => {
-                if (!toolBar) return;
-                const AMap = (window as any).AMap;
-                if (!AMap) return;
-
-                const toolBarInstance = new AMap.ToolBar({
-                    position: {
-                        right: '40px',
-                        top: '110px',
-                    },
-                });
-                toolBarInstance.addTo(mapInstance.current);
-            };
-
-            const addAutoComplete = () => {
-                if (!autoCompleteOptions) return;
-                const AMap = (window as any).AMap;
-                if (!AMap) return;
-
-                try {
-                    const autoComplete = new AMap.AutoComplete({
-                        input: autoCompleteOptions.input,
-                        city: autoCompleteOptions.city || '全国',
-                        citylimit: autoCompleteOptions.citylimit || false,
-                    });
-
-                    // 监听选择事件
-                    autoComplete.on('select', (result: AutoComplete.Result) => {
-                        console.log('select result', result);
-                        if (result.poi && result.poi.location) {
-                            const center = [result.poi.location.lng, result.poi.location.lat];
-
-                            // 使用 setTimeout 确保地图操作在下一个事件循环中执行
-                            setTimeout(() => {
-                                try {
-                                    // 先清除之前的标记点
-                                    markersRef.current.forEach((marker) => {
-                                        marker.setMap(null);
-                                    });
-                                    markersRef.current = [];
-
-                                    // 添加新标记点
-                                    handleAddMark({
-                                        position: [
-                                            result.poi.location.lng,
-                                            result.poi.location.lat,
-                                        ],
-                                        title: result.poi.name,
-                                        id: String(result.poi.id),
-                                    });
-
-                                    // 设置地图中心点
-                                    mapInstance.current.setCenter(center);
-
-                                    // 设置缩放级别
-                                    mapInstance.current.setZoom(15);
-                                } catch (error) {
-                                    console.error('地图操作执行失败:', error);
-                                }
-                            }, 100);
-                            console.log('result.poi', result.poi);
-                            onSelectLocation?.(result.poi);
-                        } else {
-                            const placeSearch = new AMap.PlaceSearch({
-                                map: mapInstance.current,
-                            });
-                            placeSearch.setCity(result.poi.adcode);
-                            placeSearch.search(result.poi.name);
-                            placeSearch.on('complete', (e: any) => {
-                                console.log('placeSearch complete', e);
-                                if (e.info !== 'OK') {
-                                    return;
-                                }
-                                const poi = e.poiList.pois[0];
-                                console.log('placeSearch poi', poi);
-                                setTimeout(() => {
-                                    mapInstance.current.setCenter([
-                                        poi.location.lng,
-                                        poi.location.lat,
-                                    ]);
-                                    handleAddMark({
-                                        position: [poi.location.lng, poi.location.lat],
-                                        title: poi.name,
-                                        id: String(poi.id),
-                                    });
-                                }, 100);
-                                onSelectLocation?.(poi);
-                            });
-                        }
-                    });
-
-                    autoComplete.on('error', (error: any) => {
-                        console.error('自动完成搜索错误:', error);
-                    });
-                } catch (error) {
-                    console.error('自动完成功能初始化失败:', error);
-                }
-            };
 
             useEffect(() => {
                 window._AMapSecurityConfig = {
@@ -302,7 +174,7 @@ const Map = memo(
                 })
                     .then((AMap) => {
                         if (mapRef.current) {
-                            const config: any = {
+                            const config: AMap.MapOptions = {
                                 center,
                                 ...defaultMapConfig,
                                 ...mapConfig,
@@ -312,16 +184,76 @@ const Map = memo(
                             const map = new AMap.Map(mapRef.current, config);
                             mapInstance.current = map;
 
+                            const addControlBar = () => {
+                                if (!controlBar) return;
+                                const controlBarInstance = new AMap.ControlBar({
+                                    position: { right: '10px', top: '10px' },
+                                });
+                                controlBarInstance.addTo(mapInstance.current);
+                            };
+
+                            const addToolBar = () => {
+                                if (!toolBar) return;
+                                const toolBarInstance = new AMap.ToolBar({
+                                    position: { right: '40px', top: '110px' },
+                                });
+                                toolBarInstance.addTo(mapInstance.current);
+                            };
+
+                            const addAutoComplete = () => {
+                                if (!autoCompleteOptions) return;
+                                try {
+                                    const autoComplete = new AMap.AutoComplete({
+                                        input: autoCompleteOptions.input,
+                                        city: autoCompleteOptions.city || '全国',
+                                        citylimit: autoCompleteOptions.citylimit || false,
+                                    });
+
+                                    autoComplete.on('select', (result: AutoCompleteResult) => {
+                                        if (result.poi && result.poi.location) {
+                                            const selectedCenter = [result.poi.location.lng, result.poi.location.lat];
+                                            setTimeout(() => {
+                                                try {
+                                                    markersRef.current.forEach((marker) => marker.setMap(null));
+                                                    markersRef.current = [];
+                                                    handleAddMark({ position: [result.poi.location.lng, result.poi.location.lat], title: result.poi.name, id: String(result.poi.id) }, AMap);
+                                                    mapInstance.current?.setCenter(selectedCenter);
+                                                    mapInstance.current?.setZoom(15);
+                                                } catch (error) {
+                                                    console.error('地图操作执行失败:', error);
+                                                }
+                                            }, 100);
+                                            onSelectLocation?.(result.poi);
+                                        } else {
+                                            const placeSearch = new AMap.PlaceSearch({ map: mapInstance.current });
+                                            placeSearch.setCity(result.poi.adcode);
+                                            placeSearch.search(result.poi.name);
+                                            placeSearch.on('complete', (e: AMap.PlaceSearch.PlaceSearchResult) => {
+                                                if (e.info !== 'OK') return;
+                                                const poi = e.poiList.pois[0];
+                                                setTimeout(() => {
+                                                    mapInstance.current?.setCenter([poi.location.lng, poi.location.lat]);
+                                                    handleAddMark({ position: [poi.location.lng, poi.location.lat], title: poi.name, id: String(poi.id) }, AMap);
+                                                }, 100);
+                                                onSelectLocation?.(poi as AutoCompletePoi);
+                                            });
+                                        }
+                                    });
+                                    autoComplete.on('error', (error: AMap.Event) => {
+                                        console.error('自动完成搜索错误:', error);
+                                    });
+                                } catch (error) {
+                                    console.error('自动完成功能初始化失败:', error);
+                                }
+                            };
+
                             addControlBar();
                             addToolBar();
-
-                            markers.forEach((marker) => {
-                                handleAddMark(marker);
-                            });
+                            markers.forEach((marker) => handleAddMark(marker, AMap));
                             addAutoComplete();
                         }
                     })
-                    .catch((e) => {
+                    .catch((e: Error) => {
                         console.error('高德地图加载失败', e);
                     });
 
@@ -335,7 +267,7 @@ const Map = memo(
                         mapInstance.current = null;
                     }
                 };
-            }, [center, zoom, markers, mapStyle]); // 移除 onMarkerClick 依赖
+            }, [center, zoom, markers, mapStyle, controlBar, toolBar, autoCompleteOptions, onSelectLocation, handleAddMark, mapConfig]);
 
             return (
                 <div
@@ -350,3 +282,4 @@ const Map = memo(
 );
 
 export default Map;
+

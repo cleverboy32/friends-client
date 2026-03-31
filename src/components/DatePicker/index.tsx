@@ -60,12 +60,20 @@ export const DatePicker: React.FC<DatePickerProps> = ({
     const [isHovering, setIsHovering] = useState(false);
     const buttonRef = useRef<HTMLButtonElement>(null);
 
+    const prevOpenRef = useRef(false); // Initialize with false
+
     // 同步外部 value
     useEffect(() => {
         if (value !== undefined) {
             setSelectedValue(value);
         }
     }, [value]);
+
+    // 同步 Popover 的 open 状态到外部 onOpenChange
+    useEffect(() => {
+        // This effect will be inside the Popover render prop, but we'll modify it later.
+        // For now, let's just make sure it's valid outside.
+    });
 
     // 计算面板位置
     const calculatePanelPosition = useCallback(() => {
@@ -321,9 +329,12 @@ export const DatePicker: React.FC<DatePickerProps> = ({
     return (
         <Popover className={`relative inline-block ${className}`}>
             {({ open, close }) => {
-                // 同步 open 状态到外部
+                // 同步 Popover 的 open 状态到外部 onOpenChange
                 useEffect(() => {
-                    onOpenChange?.(open);
+                    if (prevOpenRef.current !== open) {
+                        onOpenChange?.(open);
+                        prevOpenRef.current = open;
+                    }
                 }, [open, onOpenChange]);
 
                 return (
@@ -432,5 +443,3 @@ export const DatePicker: React.FC<DatePickerProps> = ({
         </Popover>
     );
 };
-
-export default DatePicker;

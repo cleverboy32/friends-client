@@ -113,7 +113,7 @@ const Upload: React.FC<UploadProps> = ({
                         onChange?.([{ ...picked, url: serverUrl }]);
                         URL.revokeObjectURL(picked.url);
                     }
-                } catch (err) {
+                } catch {
                     // 上传失败，移除该文件并提示
                     setFiles([]);
                     onChange?.([]);
@@ -152,7 +152,7 @@ const Upload: React.FC<UploadProps> = ({
                             });
                             URL.revokeObjectURL(nf.url);
                         }
-                    } catch (err) {
+                    } catch {
                         // 上传失败，移除该文件并提示
                         setFiles((prev) => {
                             const next = prev.filter((f) => f.id !== nf.id);

@@ -29,7 +29,7 @@ export function reEnum(enumObject: Record<string | symbol, string | number | [] 
 export function convertEnum2Options(
     enumObject: Record<string | symbol, string | number | [] | boolean>,
 ) {
-    let keys = Object.keys(enumObject).filter(
+    const keys = Object.keys(enumObject).filter(
         (v) => typeof v !== 'number' && !(enumObject[symbols.REENUM_LIST] as string[])?.includes(v),
     );
     return keys.map((v) => ({

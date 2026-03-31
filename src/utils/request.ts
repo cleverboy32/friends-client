@@ -7,7 +7,7 @@ import axios, {
 } from 'axios';
 
 // 接口返回数据的通用格式
-interface ResponseData<T = any> {
+interface ResponseData<T = unknown> {
     code: number;
     data: T;
     message: string;
@@ -80,23 +80,25 @@ request.interceptors.response.use(
 );
 
 // 封装GET请求
-export function get<T = any>(url: string, params?: any, config?: AxiosRequestConfig) {
-    return request.get<any, T>(url, { params, ...config });
+export function get<T = unknown>(url: string, params?: unknown, config?: AxiosRequestConfig) {
+    return request.get<unknown, T>(url, { params, ...config });
 }
 
 // 封装POST请求
-export function post<T = any>(url: string, data?: any, config?: AxiosRequestConfig) {
-    return request.post<any, T>(url, data, config);
+export function post<T = unknown>(url: string, data?: unknown, config?: AxiosRequestConfig) {
+    return request.post<unknown, T>(url, data, config);
 }
 
+
+
 // 封装PUT请求
-export function put<T = any>(url: string, data?: any, config?: AxiosRequestConfig) {
-    return request.put<any, T>(url, data, config);
+export function put<T = unknown>(url: string, data?: unknown, config?: AxiosRequestConfig) {
+    return request.put<unknown, T>(url, data, config);
 }
 
 // 封装DELETE请求
-export function del<T = any>(url: string, config?: AxiosRequestConfig) {
-    return request.delete<any, T>(url, config);
+export function del<T = unknown>(url: string, config?: AxiosRequestConfig) {
+    return request.delete<unknown, T>(url, config);
 }
 
 // 导出request实例

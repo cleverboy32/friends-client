@@ -1,56 +1,53 @@
-export namespace AutoComplete {
-    export interface Options {
-        input: string | HTMLElement;
-        city?: string;
-        citylimit?: boolean;
-        type?: string;
-        datatype?: string;
-    }
-
-    export interface Result {
-        poi: Poi;
-        status: string;
-        info: string;
-        count: number;
-    }
-
-    export interface Poi {
-        id: number;
-        name: string;
-        type: string;
-        typecode: string;
-        address: string;
-        location: Location;
-        adcode: string;
-        adname: string;
-        citycode: string;
-        city: string;
-        district: string;
-        provincecode: string;
-        provincename: string;
-    }
-
-    export interface Location {
-        lng: number;
-        lat: number;
-    }
+export interface AutoCompleteOptions {
+    input: string | HTMLElement;
+    city?: string;
+    citylimit?: boolean;
+    type?: string;
+    datatype?: string;
 }
 
-export namespace PlaceSearch {
-    export interface Options {
-        map?: AMap.Map;
-        city?: string;
-    }
-
-    export interface PoiList {
-        pois: Poi[];
-        count: number;
-    }
-
-    export interface Poi {
-        id: string;
-        name: string;
-        location: AutoComplete.Location;
-        address: string;
-    }
+export interface AutoCompleteResult {
+    poi: AutoCompletePoi;
+    status: string;
+    info: string;
+    count: number;
 }
+
+export interface AutoCompletePoi {
+    id: number;
+    name: string;
+    type: string;
+    typecode: string;
+    address: string;
+    location: AutoCompleteLocation;
+    adcode: string;
+    adname: string;
+    citycode: string;
+    city: string;
+    district: string;
+    provincecode: string;
+    provincename: string;
+}
+
+export interface AutoCompleteLocation {
+    lng: number;
+    lat: number;
+}
+
+export interface PlaceSearchOptions {
+    map?: AMap.Map;
+    city?: string;
+}
+
+export interface PlaceSearchPoiList {
+    pois: PlaceSearchPoi[];
+    count: number;
+}
+
+export interface PlaceSearchPoi {
+    id: string;
+    name: string;
+    location: AutoCompleteLocation;
+    address: string;
+}
+

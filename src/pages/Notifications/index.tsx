@@ -4,13 +4,12 @@ import useChatStore from '@/store/chat';
 import useUserStore from '@/store/user';
 import Navbar from '@/components/navbar';
 import MessageView from './MessageView';
-import { TrashIcon } from '@heroicons/react/24/outline';
 
 const LAST_SELECTED_CHAT_KEY = 'lastSelectedChatId';
 
 const NotificationsPage: React.FC = () => {
     const navigate = useNavigate();
-    const { chatList, getChatList, deleteChat, activeChatUser } = useChatStore();
+    const { chatList, getChatList, activeChatUser } = useChatStore();
     const { userInfo } = useUserStore();
     const [selectedToId, setSelectedToId] = useState<string | null>(null);
 
@@ -49,15 +48,6 @@ const NotificationsPage: React.FC = () => {
             setSelectedToId(toIdStr);
             localStorage.setItem(LAST_SELECTED_CHAT_KEY, toIdStr);
         }
-    };
-
-    const handleDelete = (e: React.MouseEvent, chatUserId: number) => {
-        e.stopPropagation();
-        if (selectedToId === chatUserId.toString()) {
-            setSelectedToId(null);
-            localStorage.removeItem(LAST_SELECTED_CHAT_KEY);
-        }
-        deleteChat(chatUserId);
     };
 
     return (

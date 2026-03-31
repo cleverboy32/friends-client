@@ -9,7 +9,6 @@ export interface UploadResponseData {
         mimetype: string;
         size: number;
         // 允许服务端扩展字段
-        [key: string]: any;
     };
 }
 

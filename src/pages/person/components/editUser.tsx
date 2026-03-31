@@ -37,7 +37,7 @@ const mapUserToValues = (user?: UserInfo | null): EditUserValues => ({
     email: user?.email ?? '',
     phone: user?.phone ?? '',
     avatar: user?.avatar ?? '',
-    gender: (user?.gender as any) ?? undefined,
+    gender: user?.gender ?? undefined,
     bio: '',
     birthday: user?.createdAt ? '' : '',
 });
@@ -90,7 +90,7 @@ const EditUser: React.FC<EditUserProps> = ({
         try {
             setSubmitting(true);
 
-            const payload: Record<string, any> = {
+            const payload: UpdateUserParams = {
                 name: values.name,
                 avatar: values.avatar || undefined,
                 gender: values.gender || undefined,
@@ -109,7 +109,7 @@ const EditUser: React.FC<EditUserProps> = ({
             alert('保存成功');
             onCancel?.();
             onClose?.();
-        } catch (err) {
+        } catch {
             alert('保存失败，请稍后重试');
         } finally {
             setSubmitting(false);

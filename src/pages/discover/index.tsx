@@ -97,7 +97,7 @@ const DiscoverPage: React.FC = () => {
     useEffect(() => {
         console.log('Effect triggered with filter:', filter);
         fetchActivities();
-    }, [filter]);
+    }, [filter, fetchActivities]);
 
     const handleActivityClick = useCallback(
         (activityId: string) => {

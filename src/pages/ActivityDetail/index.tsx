@@ -4,7 +4,7 @@ import { getActivityDetail } from '@/api/activity';
 import type { Activity } from '@/types/activity';
 import Navbar from '@/components/navbar';
 import {
-    ArrowLeftIcon,
+
     MapPinIcon,
     ClockIcon,
     UsersIcon,

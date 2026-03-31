@@ -28,7 +28,7 @@ const Tab: React.FC<TabProps> = ({
     const handleChangeTab = useCallback((index: number) => {
         setSelected(tabs[index].id);
         onChange?.(tabs[index]);
-    }, []);
+    }, [onChange, tabs]);
 
     return (
         <div className={`tab-component ${className}`}>
