@@ -150,17 +150,6 @@ const PostActivity: React.FC = () => {
         updateForm({ location });
     };
 
-    // 添加标签选择功能
-    const handleTagSelect = (tagName: string) => {
-        if (form.tags.includes(tagName)) {
-            updateForm({ tags: form.tags.filter((tag) => tag !== tagName) });
-        } else if (form.tags.length < 5) {
-            // 最多选择5个标签
-            updateForm({ tags: [...form.tags, tagName] });
-        } else {
-            alert('最多只能选择5个标签');
-        }
-    };
 
     // 创建预览用的活动对象，适配 ActivityCard 组件的接口
     const previewActivity = useMemo(
@@ -181,43 +170,9 @@ const PostActivity: React.FC = () => {
         [form, userInfo],
     );
 
-    const activityTopics = [
-        { id: 1, name: '夏天用游泳开场', type: 'activity' },
-        { id: 2, name: '21天新鲜事vlog', type: 'activity' },
-        { id: 3, name: '按下快门前的30s', type: 'activity' },
-    ];
 
-    const _tabs = [
-        {
-            id: 'topic',
-            label: '#话题',
-            content: (
-                <div className="bg-white rounded-lg mb-6 gap-3 flex-wrap flex">
-                    {activityTopics.map((topic) => (
-                        <div
-                            key={topic.id}
-                            className={`p-2 rounded-lg cursor-pointer transition-colors ${
-                                form.tags.includes(topic.name)
-                                    ? 'bg-theme text-white'
-                                    : 'bg-gray-50 hover:bg-gray-100'
-                            }`}
-                            onClick={() => handleTagSelect(topic.name)}>
-                            <div className="flex items-center">
-                                <span
-                                    className={`text-[14px] font-medium ${
-                                        form.tags.includes(topic.name)
-                                            ? 'text-white'
-                                            : 'text-dark-theme'
-                                    }`}>
-                                    #{topic.name}
-                                </span>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            ),
-        },
-    ];
+
+
 
     return (
         <div className="flex min-h-screen bg-gray-50">

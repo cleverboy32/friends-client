@@ -63,6 +63,8 @@ export interface ActivityQueryParams {
     timeRange?: string;
     needPartner?: boolean;
     keyword?: string;
+    location?: Location; // Add location here
+    [key: string]: string | number | boolean | undefined | Location; // Index signature
 }
 
 export interface Tag {

@@ -5,7 +5,7 @@ import Home from './pages/home';
 import Login from './pages/login';
 import DiscoverPage from './pages/discover';
 import ActivityDetailPage from './pages/ActivityDetail';
-import PostActivity from './pages/PostActivity';
+import PostActivity from './pages/PostActivity/index.tsx';
 import PersonPage from './pages/person';
 import NotificationsPage from './pages/Notifications';
 import Header from './components/Header';

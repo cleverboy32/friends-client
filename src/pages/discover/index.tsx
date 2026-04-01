@@ -35,7 +35,7 @@ const DiscoverPage: React.FC = () => {
                     // Toggle behavior for type filters, set for others
                     const newValue = prev[key] === value ? undefined : value;
 
-                    newFilters[key] = newValue;
+                    (newFilters[key] as string | number | boolean | undefined) = newValue;
                 }
 
                 // If a filter is deselected (value becomes undefined), remove the key

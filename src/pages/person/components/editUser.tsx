@@ -4,7 +4,7 @@ import Modal from '@/components/Modal';
 import { updateUser } from '@/api/user';
 import Button from '@/components/button';
 import useUserStore from '@/store/user';
-import type { UserInfo } from '@/types/user';
+import type { UserInfo, UpdateUserParams } from '@/types/user';
 import Input from '@/components/Input';
 import Textarea from '@/components/Textarea';
 import { DatePicker } from '@/components/DatePicker';

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useImperativeHandle, useCallback, memo } from 'react';
 import AMapLoader from '@amap/amap-jsapi-loader';
-import type { AutoCompleteOptions, AutoCompletePoi, AutoCompleteResult } from '@/types/map';
+import type { AutoCompleteOptions, AutoCompletePoi, AutoCompleteResult, PlaceSearchResult } from '@/types/map';
 
 export interface Marker {
     id: string;
@@ -43,8 +43,6 @@ export interface MapRef {
 
 const DEFAULT_CENTER: [number, number] = [116.397428, 39.90923]; // 北京天安门
 const DEFAULT_ZOOM = 11;
-
-
 
 const defaultMapConfig: AMap.MapOptions = {
     features: ['bg', 'road', 'building', 'point'],
@@ -117,8 +115,9 @@ const Map = memo(
 
                         // 点击标记点显示信息窗口
                         markerInstance.on('click', () => {
-                            mapInstance.current &&
-                            infoWindow.open(mapInstance.current, marker.position);
+                            if (mapInstance.current) {
+                                infoWindow.open(mapInstance.current, marker.position);
+                            }
                             if (onMarkerClick) {
                                 onMarkerClick(marker);
                             }
@@ -141,10 +140,8 @@ const Map = memo(
                         mapInstance.current?.setCenter(nextCenter);
                     },
                     addMarker: (marker: Marker) => {
-                        if (!mapInstance.current) return;
-                        const AMap: typeof window.AMap = window.AMap;
-                        if (!AMap) return;
-                        handleAddMark(marker, AMap);
+                        if (!mapInstance.current || !window.AMap) return; // Ensure window.AMap is available
+                        handleAddMark(marker, window.AMap);
                     },
                     clearMarkers: () => {
                         markersRef.current.forEach((m) => m.setMap(null));
@@ -153,9 +150,6 @@ const Map = memo(
                 }),
                 [handleAddMark],
             );
-
-
-
 
             useEffect(() => {
                 window._AMapSecurityConfig = {
@@ -229,14 +223,29 @@ const Map = memo(
                                             const placeSearch = new AMap.PlaceSearch({ map: mapInstance.current });
                                             placeSearch.setCity(result.poi.adcode);
                                             placeSearch.search(result.poi.name);
-                                            placeSearch.on('complete', (e: any) => {
+                                            placeSearch.on('complete', (e: PlaceSearchResult) => {
                                                 if (e.info !== 'OK') return;
                                                 const poi = e.poiList.pois[0];
+                                                const autoCompletePoi: AutoCompletePoi = {
+                                                    id: Number(poi.id),
+                                                    name: poi.name,
+                                                    type: 'POI', // Default or infer if possible
+                                                    typecode: '',
+                                                    address: poi.address,
+                                                    location: poi.location,
+                                                    adcode: '',
+                                                    adname: '',
+                                                    citycode: '',
+                                                    city: '',
+                                                    district: '',
+                                                    provincecode: '',
+                                                    provincename: '',
+                                                };
                                                 setTimeout(() => {
                                                     mapInstance.current?.setCenter([poi.location.lng, poi.location.lat]);
                                                     handleAddMark({ position: [poi.location.lng, poi.location.lat], title: poi.name, id: String(poi.id) }, AMap);
                                                 }, 100);
-                                                onSelectLocation?.(poi as AutoCompletePoi);
+                                                onSelectLocation?.(autoCompletePoi);
                                             });
                                         }
                                     });

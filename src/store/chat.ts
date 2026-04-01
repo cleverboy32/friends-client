@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { getUnreadChatList, getChatMessages } from '@/api/chat';
 import type { Chat, Message, ChatUser, ChatMessagePayload } from '@/types/chat';
-import type { User } from '@/types/user';
+import type { UserInfo } from '@/types/user';
 import {
     onReceiveMessage,
     sendMessage as sendWsMessage,
@@ -18,7 +18,7 @@ interface ChatState {
     addOrUpdateChatUser: (user: ChatUser, currentUserId: number) => void;
     getChatList: (userId: number) => Promise<void>;
     getChatMessage: (params: Omit<ChatMessagePayload, 'chatId'>) => Promise<void>;
-    sendMessage: (params: { toId: number, content: string }, fromUser: User) => void;
+    sendMessage: (params: { toId: number, content: string }, fromUser: UserInfo) => void;
     clearUnread: (chatId: string) => void;
     deleteChat: (chatUserId: number) => void;
 }
@@ -65,6 +65,10 @@ const useChatStore = create<ChatState>()(
                 chatMessages: {},
                 isLoading: false,
                 activeChatUser: null,
+                connect: () => {
+                    // WebSocket connection logic is already handled by onReceiveMessage at the top level
+                    console.log('ChatStore: WebSocket connection handler initialized.');
+                },
                 addOrUpdateChatUser: (user, currentUserId) => {
                     set((state) => {
                         const existingChat = state.chatList.find(
@@ -149,7 +153,7 @@ const useChatStore = create<ChatState>()(
                         toId,
                         content,
                         createdAt: new Date().toISOString(),
-                        fromUser: { id: fromUser.id, name: fromUser.name, avatar: fromUser.avatar },
+                        fromUser: { id: fromUser.id, name: fromUser.name, avatar: fromUser.avatar ?? null },
                         toUser: get().chatList.find((c) => c.chatUser.id === toId)?.chatUser,
                     };
 

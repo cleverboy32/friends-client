@@ -59,8 +59,9 @@ export const DatePicker: React.FC<DatePickerProps> = ({
     const [panelPosition, setPanelPosition] = useState({ top: 0, left: 0 });
     const [isHovering, setIsHovering] = useState(false);
     const buttonRef = useRef<HTMLButtonElement>(null);
+    const [internalOpen, setInternalOpen] = useState(false); // Internal state for Popover open
 
-    const prevOpenRef = useRef(false); // Initialize with false
+    const prevOpenRef = useRef(internalOpen); // Initialize with internalOpen
 
     // 同步外部 value
     useEffect(() => {
@@ -71,9 +72,11 @@ export const DatePicker: React.FC<DatePickerProps> = ({
 
     // 同步 Popover 的 open 状态到外部 onOpenChange
     useEffect(() => {
-        // This effect will be inside the Popover render prop, but we'll modify it later.
-        // For now, let's just make sure it's valid outside.
-    });
+        if (prevOpenRef.current !== internalOpen) {
+            onOpenChange?.(internalOpen);
+            prevOpenRef.current = internalOpen;
+        }
+    }, [internalOpen, onOpenChange]);
 
     // 计算面板位置
     const calculatePanelPosition = useCallback(() => {
@@ -329,13 +332,10 @@ export const DatePicker: React.FC<DatePickerProps> = ({
     return (
         <Popover className={`relative inline-block ${className}`}>
             {({ open, close }) => {
-                // 同步 Popover 的 open 状态到外部 onOpenChange
+                // Update internalOpen state based on Popover's open state
                 useEffect(() => {
-                    if (prevOpenRef.current !== open) {
-                        onOpenChange?.(open);
-                        prevOpenRef.current = open;
-                    }
-                }, [open, onOpenChange]);
+                    setInternalOpen(open);
+                }, [open]);
 
                 return (
                     <>
@@ -376,7 +376,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
                         </PopoverButton>
 
                         {/* 日期选择面板 - 使用 Portal 渲染 */}
-                        {open &&
+                        {internalOpen &&
                             createPortal(
                                 <PopoverPanel
                                     className="fixed z-2000 bg-white border border-gray-200 rounded-md shadow-lg min-w-[280px]"

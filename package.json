@@ -5,8 +5,8 @@
     "type": "module",
     "scripts": {
         "dev": "vite",
-        "build": "tsc -b && NODE_OPTIONS='--max-old-space-size=2048' vite build",
-        "build:low-memory": "tsc -b && NODE_OPTIONS='--max-old-space-size=256' vite build",
+        "build": "tsc -b --noEmit && NODE_OPTIONS='--max-old-space-size=2048' vite build",
+        "build:low-memory": "tsc -b --noEmit && NODE_OPTIONS='--max-old-space-size=256' vite build",
         "lint": "eslint .",
         "preview": "vite preview",
         "format": "prettier --write .",

@@ -52,7 +52,7 @@ request.interceptors.response.use(
             localStorage.setItem('token', token);
         }
 
-        const res: any = response.data;
+        const res: ResponseData = response.data;
 
         if (res.code !== 200) {
             showErrorMessage(res.message || '请求失败');
@@ -61,10 +61,10 @@ request.interceptors.response.use(
 
         console.log(res.data);
 
-        return res.data;
+        return response;
     },
     (error: AxiosError<ResponseData>) => {
-        if (error.status === 401) {
+        if (error.response?.status === 401) {
             window.location.href = '/login';
         } else if (error.response?.data) {
             showErrorMessage(error.response.data.message || '请求失败');
@@ -81,7 +81,7 @@ request.interceptors.response.use(
 
 // 封装GET请求
 export function get<T = unknown>(url: string, params?: unknown, config?: AxiosRequestConfig) {
-    return request.get<unknown, T>(url, { params, ...config });
+    return request.get<ResponseData<T>>(url, { params, ...config }).then(res => res.data.data);
 }
 
 // 封装POST请求
