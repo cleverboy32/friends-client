@@ -62,6 +62,7 @@ export interface ActivityQueryParams {
     distance?: string;
     timeRange?: string;
     needPartner?: boolean;
+    keyword?: string;
 }
 
 export interface Tag {

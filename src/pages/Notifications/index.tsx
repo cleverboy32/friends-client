@@ -103,7 +103,6 @@ const NotificationsPage: React.FC = () => {
                     className={`flex-1 flex-col ${selectedToId === null ? 'hidden md:flex' : 'flex'}`}>
                     <MessageView
                         toId={selectedToId}
-                        isComponent={true}
                     />
                 </div>
             </div>

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useImperativeHandle, useCallback, memo } from 'react';
 import AMapLoader from '@amap/amap-jsapi-loader';
-import type { AutoComplete } from '@/types/map';
+import type { AutoCompleteOptions, AutoCompletePoi, AutoCompleteResult } from '@/types/map';
 
 export interface Marker {
     id: string;
@@ -21,16 +21,16 @@ interface MapProps {
     id?: string;
     width?: string;
     height?: string;
-    center?: number[]; // [lng, lat]
+    center?: [number, number]; // [lng, lat]
     zoom?: number;
     markers?: Marker[];
     mapStyle?: MapStyle;
     mapConfig?: AMap.MapOptions;
     onMarkerClick?: (marker: Marker) => void;
-    autoCompleteOptions?: AutoComplete.Options;
+    autoCompleteOptions?: AutoCompleteOptions;
     controlBar?: boolean;
     toolBar?: boolean;
-    onSelectLocation?: (location: AutoComplete.Poi) => void;
+    onSelectLocation?: (location: AutoCompletePoi) => void;
     className?: string;
 }
 
@@ -46,7 +46,7 @@ const DEFAULT_ZOOM = 11;
 
 
 
-const defaultMapConfig = {
+const defaultMapConfig: AMap.MapOptions = {
     features: ['bg', 'road', 'building', 'point'],
     viewMode: '3D',
     rotateEnable: true,
@@ -117,6 +117,7 @@ const Map = memo(
 
                         // 点击标记点显示信息窗口
                         markerInstance.on('click', () => {
+                            mapInstance.current &&
                             infoWindow.open(mapInstance.current, marker.position);
                             if (onMarkerClick) {
                                 onMarkerClick(marker);
@@ -211,7 +212,7 @@ const Map = memo(
 
                                     autoComplete.on('select', (result: AutoCompleteResult) => {
                                         if (result.poi && result.poi.location) {
-                                            const selectedCenter = [result.poi.location.lng, result.poi.location.lat];
+                                            const selectedCenter: [number, number] = [result.poi.location.lng, result.poi.location.lat];
                                             setTimeout(() => {
                                                 try {
                                                     markersRef.current.forEach((marker) => marker.setMap(null));
@@ -228,7 +229,7 @@ const Map = memo(
                                             const placeSearch = new AMap.PlaceSearch({ map: mapInstance.current });
                                             placeSearch.setCity(result.poi.adcode);
                                             placeSearch.search(result.poi.name);
-                                            placeSearch.on('complete', (e: AMap.PlaceSearch.PlaceSearchResult) => {
+                                            placeSearch.on('complete', (e: any) => {
                                                 if (e.info !== 'OK') return;
                                                 const poi = e.poiList.pois[0];
                                                 setTimeout(() => {

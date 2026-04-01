@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import ActivityCard, { ActivityCardSkeleton, type Activity } from '@/components/ActivityCard';
 import { getActivityList } from '@/api/activity';
 import type { ActivityQueryParams } from '@/types/activity';
-import type { AutoComplete } from '@/types/map';
+import type { AutoCompletePoi } from '@/types/map';
 import Navbar from '@/components/navbar';
 import useUserStore from '@/store/user';
 import Input from '@/components/Input';
@@ -13,7 +13,7 @@ import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 const DiscoverPage: React.FC = () => {
     const navigate = useNavigate();
     const { userInfo } = useUserStore();
-    const address = useRef<AutoComplete.Poi>(null);
+    const address = useRef<AutoCompletePoi>(null);
     const [filter, setFilter] = useState<ActivityQueryParams>({});
     const page = useRef(1);
 
@@ -34,6 +34,7 @@ const DiscoverPage: React.FC = () => {
                 } else {
                     // Toggle behavior for type filters, set for others
                     const newValue = prev[key] === value ? undefined : value;
+
                     newFilters[key] = newValue;
                 }
 

@@ -4,7 +4,7 @@ import Input from '../Input';
 import Modal from '../Modal';
 import Map, { type MapRef } from '../Map';
 import Button from '../button';
-import type { AutoComplete } from '@/types/map';
+import type { AutoCompletePoi } from '@/types/map';
 
 interface LocationPickerProps {
     visible: boolean;
@@ -15,9 +15,9 @@ interface LocationPickerProps {
 
 const LocationPicker: React.FC<LocationPickerProps> = ({ onChange, onClose, visible }) => {
     const mapRef = useRef<MapRef>(null);
-    const poiRef = useRef<AutoComplete.Poi | null>(null);
+    const poiRef = useRef<AutoCompletePoi | null>(null);
 
-    const handleSelectLocation = (poi: AutoComplete.Poi) => {
+    const handleSelectLocation = (poi: AutoCompletePoi) => {
         poiRef.current = poi;
     };
 

@@ -30,7 +30,7 @@ export const getActivityDetail = (activityId: number | string) => {
 // 更新活动信息
 export const updateActivity = (activityId: number | string, data: UpdateActivityParams) => {
     const { ...restData } = data;
-    return post<Activity>(`/activity/update`, { id: String(activityId), ...restData });
+    return post<Activity>(`/activity/update`, {  ...restData, id: String(activityId) });
 };
 
 // 删除活动

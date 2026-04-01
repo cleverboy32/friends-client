@@ -187,7 +187,7 @@ const PostActivity: React.FC = () => {
         { id: 3, name: '按下快门前的30s', type: 'activity' },
     ];
 
-    const tabs = [
+    const _tabs = [
         {
             id: 'topic',
             label: '#话题',
@@ -287,10 +287,10 @@ const PostActivity: React.FC = () => {
                         </div>
                     </div>
 
-                    <Tab
+                    {/* <Tab
                         tabs={tabs}
                         onChange={(tab) => setSelectedTab(tab.id)}
-                    />
+                    /> */}
                 </div>
 
                 {/* 地点选择 */}

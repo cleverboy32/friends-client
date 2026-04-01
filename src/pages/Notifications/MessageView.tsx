@@ -14,7 +14,7 @@ const formatTime = (date: Date): string => {
 };
 
 interface MessageViewProps {
-    toId: string;
+    toId?: string | null;
 }
 
 const MessageView: React.FC<MessageViewProps> = ({ toId }) => {

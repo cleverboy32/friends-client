@@ -52,7 +52,7 @@ request.interceptors.response.use(
             localStorage.setItem('token', token);
         }
 
-        const res = response.data;
+        const res: any = response.data;
 
         if (res.code !== 200) {
             showErrorMessage(res.message || '请求失败');
