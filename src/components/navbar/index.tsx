@@ -69,7 +69,7 @@ const Navbar: React.FC = () => {
     };
 
     return (
-        <nav className=" px-4 py-2 z-50 w-[300px]">
+        <nav className="px-4 py-2 flex-shrink-0 z-50 w-[200px]">
             <div>
                 {navItems.map((item) => (
                     <div

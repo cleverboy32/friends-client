@@ -9,16 +9,17 @@ import PostActivity from './pages/PostActivity/index.tsx';
 import PersonPage from './pages/person';
 import NotificationsPage from './pages/Notifications';
 import Header from './components/Header';
+import Toast from './components/Toast';
 import useUserStore from './store/user';
 import { connectWebSocket } from './utils/websocket';
 
 function App() {
     const location = useLocation();
-    const showHeader = location.pathname !== '/login';
     const { userInfo, getUserInfo } = useUserStore();
 
     useEffect(() => {
-        if (location.pathname !== '/login') {
+        const token = localStorage.getItem('token');
+        if (location.pathname !== '/login' && location.pathname !== '/' && token) {
             getUserInfo();
         }
     }, [getUserInfo, location.pathname]);
@@ -33,8 +34,8 @@ function App() {
     return (
         <StrictMode>
             <div className="min-h-screen bg-gray-50">
-                {showHeader && <Header />}
-                <main>
+                <Header />
+                <Toast />
                     <Routes>
                         <Route
                             path="/"
@@ -65,7 +66,6 @@ function App() {
                             element={<NotificationsPage />}
                         />
                     </Routes>
-                </main>
             </div>
         </StrictMode>
     );

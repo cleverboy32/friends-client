@@ -6,6 +6,8 @@ import axios, {
     type AxiosError,
 } from 'axios';
 
+import useToastStore from '@/store/toast';
+
 // 接口返回数据的通用格式
 interface ResponseData<T = unknown> {
     code: number;
@@ -13,10 +15,9 @@ interface ResponseData<T = unknown> {
     message: string;
 }
 
-// 创建一个简单的消息提示函数
+// 创建一个消息提示函数
 const showErrorMessage = (message: string) => {
-    // 可以根据项目需求自定义错误提示方式
-    console.error(message);
+    useToastStore.getState().showToast(message, 'error');
 };
 
 // 创建axios实例
@@ -65,7 +66,12 @@ request.interceptors.response.use(
     },
     (error: AxiosError<ResponseData>) => {
         if (error.response?.status === 401) {
-            window.location.href = '/login';
+            localStorage.removeItem('token');
+            // 如果不是在首页，则跳转到登录页
+            if (window.location.pathname !== '/') {
+                showErrorMessage('登录已过期，请重新登录');
+                window.location.href = '/login';
+            }
         } else if (error.response?.data) {
             showErrorMessage(error.response.data.message || '请求失败');
         } else if (error.request) {
@@ -86,7 +92,7 @@ export function get<T = unknown>(url: string, params?: unknown, config?: AxiosRe
 
 // 封装POST请求
 export function post<T = unknown>(url: string, data?: unknown, config?: AxiosRequestConfig) {
-    return request.post<unknown, T>(url, data, config);
+    return request.post<ResponseData<T>>(url, data, config).then(res => res.data.data);
 }
 
 

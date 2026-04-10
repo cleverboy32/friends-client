@@ -1,13 +1,11 @@
 import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 import { MapPinIcon } from '@heroicons/react/24/solid';
 import LocationPicker from '@/components/LocationPicker';
 import Upload from '@/components/Upload';
 import type { UploadFile } from '@/components/Upload';
 import Input from '../../components/Input';
 import Textarea from '../../components/Textarea';
-import Tab from '@/components/Tab';
 import Select from '@/components/Select';
 import Switch from '@/components/Switch';
 import Button from '@/components/button';
@@ -15,6 +13,7 @@ import ActivityCard from '@/components/ActivityCard';
 import { createActivity } from '@/api/activity';
 import type { CreateActivityParams, Location } from '@/types/activity';
 import useUserStore from '@/store/user';
+import Navbar from '@/components/navbar';
 
 interface ActivityForm {
     title: string;
@@ -176,16 +175,8 @@ const PostActivity: React.FC = () => {
 
     return (
         <div className="flex min-h-screen bg-gray-50">
+            <Navbar />
             <div className="flex-1 p-6">
-                <div className="flex items-center mb-6">
-                    <button
-                        className="p-2 hover:bg-gray-100 rounded-lg mr-3"
-                        onClick={() => navigate(-1)}>
-                        <ArrowLeftIcon className="w-5 h-5" />
-                    </button>
-                    <h2 className="text-xl font-semibold">发布活动</h2>
-                </div>
-
                 <div className="bg-white rounded-lg p-4 mb-6">
                     <div className="flex items-center justify-between mb-4">
                         <h2 className="text-lg font-medium"></h2>
@@ -345,8 +336,8 @@ const PostActivity: React.FC = () => {
             </div>
 
             {/* 右侧预览区域 */}
-            <div className="w-96 bg-white border-l border-gray-200 p-4">
-                <div className="mb-4">
+            <div className="w-[250px] bg-white border-l border-gray-200 p-4">
+                {/* <div className="mb-4">
                     <Tab
                         tabs={[
                             {
@@ -357,11 +348,11 @@ const PostActivity: React.FC = () => {
                         ]}
                         variant="underline"
                     />
-                </div>
+                </div> */}
 
                 {/* 使用 ActivityCard 组件进行预览 */}
                 <ActivityCard
-                    className="w-[280px]"
+                    className="w-[220px]"
                     activity={previewActivity}
                     currentUserId={userInfo?.id}
                 />

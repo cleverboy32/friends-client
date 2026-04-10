@@ -64,7 +64,7 @@ const PersonPage: React.FC = () => {
 
     const renderCard = useCallback(
         (activities: Activity[]) => {
-            return (
+            return activities.length ? (
                 <div className="columns-3 md:columns-4 lg:columns-5 gap-6">
                     {activities.map((activity) => (
                         <ActivityCard
@@ -76,9 +76,9 @@ const PersonPage: React.FC = () => {
                         />
                     ))}
                 </div>
-            );
+            ) : renderEmpty();
         },
-        [userInfo],
+        [renderEmpty, userInfo?.id],
     );
 
     const tabs = [
@@ -103,7 +103,7 @@ const PersonPage: React.FC = () => {
         <div className="flex">
             <Navbar />
 
-            <div className="flex-1 flex flex-col px-[100px]">
+            <div className="flex-1 flex flex-col px-[80px]">
                 <div className="flex items-start justify-center gap-8 py-[80px]">
                     <div className="flex-shrink-0 mr-[12px] ">
                         <div className="w-32 h-32  rounded-full bg-gray-100 ">

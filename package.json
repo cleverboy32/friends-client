@@ -5,12 +5,13 @@
     "type": "module",
     "scripts": {
         "dev": "vite",
-        "build": "tsc -b --noEmit && NODE_OPTIONS='--max-old-space-size=2048' vite build",
+        "build": "tsc -b --noEmit && NODE_OPTIONS='--max-old-space-size=1024' vite build",
         "build:low-memory": "tsc -b --noEmit && NODE_OPTIONS='--max-old-space-size=256' vite build",
         "lint": "eslint .",
         "preview": "vite preview",
         "format": "prettier --write .",
-        "format:check": "prettier --check ."
+        "format:check": "prettier --check .",
+        "deploy": "npm run build && sh ./deploy.sh"
     },
     "dependencies": {
         "@amap/amap-jsapi-loader": "^1.0.1",

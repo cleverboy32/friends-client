@@ -1,5 +1,8 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ChatBubbleLeftRightIcon } from '@heroicons/react/24/outline';
+import useChatStore from '@/store/chat';
+import useUserStore from '@/store/user';
 
 interface Activity {
     id: string;
@@ -24,7 +27,6 @@ interface Activity {
 interface ActivityCardProps {
     activity: Activity;
     onClick?: (activityId: string) => void;
-    onChatClick?: (activity: Activity) => void;
     className?: string;
     currentUserId?: number;
 }
@@ -32,10 +34,13 @@ interface ActivityCardProps {
 const ActivityCard: React.FC<ActivityCardProps> = ({
     activity,
     onClick,
-    onChatClick,
     className = '',
     currentUserId,
 }) => {
+    const navigate = useNavigate();
+    const { addOrUpdateChatUser } = useChatStore();
+    const { userInfo } = useUserStore();
+
     const handleClick = () => {
         if (onClick) {
             onClick(activity.id);
@@ -44,8 +49,18 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
 
     const handleChatClick = (e: React.MouseEvent) => {
         e.stopPropagation();
-        if (onChatClick) {
-            onChatClick(activity);
+        if (activity.publisherId && userInfo) {
+            addOrUpdateChatUser(
+                {
+                    id: activity.publisherId,
+                    name: activity.publisher,
+                    avatar: activity.avatar || '',
+                },
+                userInfo.id,
+            );
+            navigate(`/notifications`);
+        } else if (!userInfo) {
+            navigate('/login');
         }
     };
 

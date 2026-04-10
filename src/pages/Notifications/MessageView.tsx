@@ -5,6 +5,7 @@ import Input from '@/components/Input';
 import Button from '@/components/button';
 import { PaperAirplaneIcon, ChatBubbleOvalLeftEllipsisIcon } from '@heroicons/react/24/outline';
 import type { ChatUser } from '@/types/chat';
+import defaultAvatar from '@/assets/default-avatar.png';
 
 // Time formatting utility
 const formatTime = (date: Date): string => {
@@ -80,7 +81,6 @@ const MessageView: React.FC<MessageViewProps> = ({ toId }) => {
         }
     };
 
-    const defaultAvatar = 'https://via.placeholder.com/40';
 
     if (!toId) {
         return (
@@ -89,7 +89,7 @@ const MessageView: React.FC<MessageViewProps> = ({ toId }) => {
                     <ChatBubbleOvalLeftEllipsisIcon className="w-24 h-24 mx-auto text-gray-300" />
                     <h2 className="mt-2 text-xl font-medium text-gray-500">选择一个聊天</h2>
                     <p className="mt-1 text-sm text-gray-400">
-                        从左侧选择一个现有的对话，或者开始一个新的对话。
+                        从左侧选择一个现有的对话，或者与感兴趣的活动作者开始一个新的对话。
                     </p>
                 </div>
             </div>
@@ -97,7 +97,7 @@ const MessageView: React.FC<MessageViewProps> = ({ toId }) => {
     }
 
     return (
-        <div className="flex-1 flex flex-col h-full">
+        <div className="flex-1 flex flex-col overflow-y-auto">
             <header className="flex items-center p-4 border-b border-gray-200">
                 <h1 className="!text-lg font-bold ml-4">{toUser?.name || 'Chat'}</h1>
             </header>
@@ -136,7 +136,7 @@ const MessageView: React.FC<MessageViewProps> = ({ toId }) => {
                                 {message.fromId === userInfo?.id && (
                                     <img
                                         src={userInfo?.avatar || defaultAvatar}
-                                        className="w-8 h-8 rounded-full"
+                                        className="w-9 h-9 rounded-full"
                                     />
                                 )}
                             </div>
@@ -146,7 +146,7 @@ const MessageView: React.FC<MessageViewProps> = ({ toId }) => {
                 <div ref={messagesEndRef} />
             </div>
 
-            <div className="p-4 pb-50 border-t border-gray-200 flex items-center gap-2">
+            <div className="p-4 pb-30 border-t border-gray-200 flex items-center gap-2">
                 <Input
                     className="flex-1"
                     value={inputValue}

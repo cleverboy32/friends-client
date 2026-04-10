@@ -64,6 +64,7 @@ const DiscoverPage: React.FC = () => {
                 lng: address.current?.location?.lng,
                 lat: address.current?.location?.lat,
             });
+            console.log(response)
 
             const convertedActivities: Activity[] = response.items.map((item) => ({
                 id: item.id.toString(),
@@ -141,13 +142,14 @@ const DiscoverPage: React.FC = () => {
                 </div>
 
                 {/* Right Sidebar - Filters */}
-                <div className="w-80 bg-white p-6 border-l border-gray-200">
+                <div className="w-[250px] bg-white p-6 border-l border-gray-200">
                     <h3 className="text-lg font-semibold mb-4">筛选</h3>
 
                     {/* Search Input */}
                     <div className="mb-6 flex w-100% items-center gap-2">
                         <Input
-                            className="pr-10 !w-68"
+                            placeholder='请输入活动名或地点'
+                            className="pr-10"
                             onKeyDown={(e) => {
                                 if (e.key === 'Enter') {
                                     handleFilterChange('keyword', e.currentTarget.value);
